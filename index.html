@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wololo Analytics - Analyse Avancée de Performances Gaming</title>
+  <style>
+    * { box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .header h1 {
+      margin: 0 0 10px 0;
+      font-size: 2.5em;
+      font-weight: 700;
+    }
+    
+    .header p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 1.1em;
+    }
+
+    .steamdb-link {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 0.9em;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .steamdb-link:hover {
+      background: rgba(255,255,255,0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      color: white;
+    }
+
+    .steamdb-icon {
+      font-size: 1.1em;
+    }
+
+    .watchlist-links {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .watchlist-link {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85em;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .watchlist-link:hover {
+      background: rgba(255,255,255,0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      color: white;
+    }
+
+    .watchlist-link.steamdb:hover {
+      background: rgba(102, 192, 244, 0.3);
+    }
+
+    .watchlist-link.ig:hover {
+      background: rgba(255, 87, 34, 0.3);
+    }
+
+    .game-title-cell {
+      font-weight: 700 !important;
+      font-size: 1.05em !important;
+      color: #1e293b !important;
+    }
+
+    .game-title-cell .game-icon {
+      font-size: 1.3em;
+      margin-right: 10px;
+    }
+
+    /* Ownership Styles */
+    .ownership-section {
+      padding: 30px;
+    }
+
+    .ownership-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 25px;
+      margin-top: 25px;
+    }
+
+    .game-card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+      border-color: #4f46e5;
+    }
+
+    .game-card-header {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .game-card-title {
+      font-weight: 700;
+      margin: 0;
+      font-size: 1.1em;
+    }
+
+    .game-card-icon {
+      font-size: 1.5em;
+    }
+
+    .game-card-info {
+      padding: 15px 20px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .game-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 15px;
+      text-align: center;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-label {
+      font-size: 0.8em;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .info-value {
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .ownership-list {
+      padding: 20px;
+    }
+
+    .ownership-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .ownership-count {
+      font-weight: 700;
+      color: #059669;
+    }
+
+    .ownership-percentage {
+      font-size: 0.9em;
+      color: #64748b;
+    }
+
+    .players-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .player-badge {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 15px;
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+
+    .player-badge.missing {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .ownership-filters {
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .ownership-filters-title {
+      font-weight: 600;
+      color: #334155;
+      margin: 0 0 15px 0;
+    }
+
+    .ownership-filter-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .ownership-filter-btn {
+      background: white;
+      border: 2px solid #e2e8f0;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 500;
+      color: #64748b;
+      transition: all 0.3s ease;
+    }
+
+    .ownership-filter-btn:hover {
+      border-color: #4f46e5;
+      color: #4f46e5;
+    }
+
+    .ownership-filter-btn.active {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border-color: #4f46e5;
+      color: white;
+    }
+    
+    .filter-section {
+      padding: 30px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .filter-title {
+      font-size: 1.3em;
+      font-weight: 600;
+      color: #334155;
+      margin: 0 0 20px 0;
+    }
+    
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
+    
+    .player-checkbox {
+      display: flex;
+      align-items: center;
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .player-checkbox:hover {
+      border-color: #4f46e5;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    }
+    
+    .player-checkbox.checked {
+      border-color: #4f46e5;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white;
+    }
+    
+    .player-checkbox input {
+      display: none;
+    }
+    
+    .player-checkbox label {
+      font-weight: 500;
+      cursor: pointer;
+      margin: 0;
+      flex: 1;
+    }
+    
+    .results-section {
+      padding: 30px;
+    }
+    
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .results-title {
+      font-size: 1.3em;
+      font-weight: 600;
+      color: #334155;
+    }
+    
+    .results-count {
+      background: #4f46e5;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+    
+    .table-container {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    
+    th {
+      background: linear-gradient(135deg, #334155, #475569);
+      color: white;
+      padding: 20px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 1em;
+    }
+    
+    td {
+      padding: 20px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 1em;
+    }
+    
+    tr:hover td {
+      background: #f8fafc;
+    }
+    
+    .score {
+      font-weight: 700;
+      font-size: 1.2em;
+    }
+    
+    .score-excellent { color: #059669; }
+    .score-good { color: #0d9488; }
+    .score-average { color: #d97706; }
+    .score-poor { color: #dc2626; }
+    
+    .no-results {
+      text-align: center;
+      padding: 60px 20px;
+      color: #64748b;
+    }
+    
+    .no-results-icon {
+      font-size: 4em;
+      margin-bottom: 20px;
+    }
+    
+    .clear-filters {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .clear-filters:hover {
+      background: #dc2626;
+      transform: translateY(-1px);
+    }
+
+    .stats-info {
+      background: #e0e7ff;
+      border-left: 4px solid #4f46e5;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      font-size: 0.9em;
+      color: #3730a3;
+    }
+
+    /* Tooltip Styles */
+    .game-name {
+      cursor: pointer;
+      position: relative;
+      color: #4f46e5;
+      font-weight: 600;
+      border-bottom: 2px dotted #4f46e5;
+    }
+
+    .game-name:hover {
+      color: #7c3aed;
+    }
+
+    .tooltip {
+      position: absolute;
+      background: linear-gradient(135deg, #1f2937, #374151);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      z-index: 1000;
+      min-width: 280px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .tooltip.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .tooltip-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .game-cover {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .game-title {
+      font-size: 1.1em;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .tooltip-content {
+      display: grid;
+      gap: 12px;
+    }
+
+    .tooltip-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tooltip-icon {
+      width: 20px;
+      text-align: center;
+      opacity: 0.8;
+    }
+
+    .tooltip-label {
+      font-weight: 500;
+      min-width: 80px;
+    }
+
+    .tooltip-value {
+      flex: 1;
+      font-weight: 600;
+    }
+
+    .pc-requirement {
+      display: flex;
+      gap: 2px;
+      cursor: help;
+      position: relative;
+    }
+
+    .pc-requirement:hover .pc-tooltip-inline {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(-5px);
+    }
+
+    .pc-tooltip-inline {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f2937;
+      background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 1000;
+      width: 280px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      border: 2px solid #475569;
+      font-size: 0.8em;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+
+    .pc-tooltip-inline::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: #1f2937;
+    }
+
+    .pc-tooltip-inline-title {
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #fbbf24;
+      text-align: center;
+      font-size: 0.9em;
+    }
+
+    .pc-tooltip-inline-levels {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .pc-tooltip-inline-level {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pc-tooltip-inline-stars {
+      min-width: 55px;
+      display: flex;
+      gap: 1px;
+      color: #fbbf24;
+      font-size: 0.8em;
+    }
+
+    .pc-tooltip-inline-desc {
+      flex: 1;
+      font-size: 0.75em;
+      opacity: 0.9;
+    }
+
+    /* Tabs Styles */
+    .tabs-container {
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .tabs {
+      display: flex;
+      padding: 0 30px;
+    }
+
+    .tab {
+      padding: 20px 30px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #64748b;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+      position: relative;
+      user-select: none;
+    }
+
+    .tab:hover {
+      color: #4f46e5;
+      background: rgba(79, 70, 229, 0.05);
+    }
+
+    .tab.active {
+      color: #4f46e5;
+      border-bottom-color: #4f46e5;
+      background: white;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Top Rankings Styles */
+    .top-rankings {
+      padding: 30px;
+    }
+
+    .rankings-filters {
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .rankings-filters-title {
+      font-weight: 600;
+      color: #334155;
+      margin: 0 0 15px 0;
+      font-size: 1.1em;
+    }
+
+    .filter-groups {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-group-title {
+      font-weight: 600;
+      color: #475569;
+      font-size: 0.9em;
+      margin: 0;
+    }
+
+    .filter-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-button {
+      background: white;
+      border: 2px solid #e2e8f0;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85em;
+      font-weight: 500;
+      color: #64748b;
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+
+    .filter-button:hover {
+      border-color: #4f46e5;
+      color: #4f46e5;
+    }
+
+    .filter-button.active {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border-color: #4f46e5;
+      color: white;
+    }
+
+    .filter-results-info {
+      background: #e0e7ff;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      color: #3730a3;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .game-section {
+      margin-bottom: 40px;
+      background: #f8fafc;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .game-section-header {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .game-section-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .game-section-info {
+      font-size: 0.9em;
+      opacity: 0.9;
+    }
+
+    .rankings-table {
+      background: white;
+    }
+
+    .rankings-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .rankings-table th {
+      background: #334155;
+      color: white;
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .rankings-table td {
+      padding: 15px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .rankings-table tr:hover td {
+      background: #f8fafc;
+    }
+
+    .rank-number {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9em;
+    }
+
+    .rank-number.top1 {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    }
+
+    .rank-number.top2 {
+      background: linear-gradient(135deg, #9ca3af, #6b7280);
+    }
+
+    .rank-number.top3 {
+      background: linear-gradient(135deg, #cd7c2f, #92400e);
+    }
+
+    .player-combo {
+      font-weight: 600;
+      color: #4f46e5;
+    }
+
+    /* Suggestions Styles */
+    .suggestions-section {
+      padding: 20px 30px;
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      margin: 20px 30px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .suggestions-section.show {
+      display: block;
+    }
+
+    .suggestions-title {
+      font-weight: 700;
+      color: #92400e;
+      margin: 0 0 15px 0;
+      font-size: 1.1em;
+    }
+
+    .suggestion-item {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #fbbf24;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .suggestion-text {
+      flex: 1;
+      color: #78350f;
+      font-weight: 500;
+    }
+
+    .suggestion-button {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9em;
+      transition: all 0.3s ease;
+    }
+
+    .suggestion-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .highlight-combo {
+      background: #fef3c7;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      color: #92400e;
+    }
+
+    .star {
+      color: #fbbf24;
+      font-size: 14px;
+    }
+
+    .star.empty {
+      color: #374151;
+    }
+
+    .price-comparison {
+      display: flex;
+      gap: 15px;
+    }
+
+    .price-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(255,255,255,0.1);
+      padding: 8px 12px;
+      border-radius: 6px;
+      min-width: 70px;
+    }
+
+    .price-label {
+      font-size: 0.8em;
+      opacity: 0.8;
+      margin-bottom: 2px;
+    }
+
+    .price-value {
+      font-weight: 700;
+      font-size: 0.9em;
+    }
+
+    .price-value.best {
+      color: #10b981;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="watchlist-links">
+        <a href="https://steamdb.info/watching/244459435/" target="_blank" class="watchlist-link steamdb">
+          <span>📊</span>
+          <span>SteamDB</span>
+        </a>
+        <a href="https://www.instant-gaming.com/en/user/gamer-dc2495e" target="_blank" class="watchlist-link ig">
+          <span>🎮</span>
+          <span>IG Watch</span>
+        </a>
+      </div>
+      
+      <h1>⚡ Wololo Analytics</h1>
+      <p>Quand les maths rencontrent la flemme de choisir un jeu 🤓</p>
+    </div>
+    
+    <div class="tabs-container">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('filter')">
+          🎯 Choose Your Players
+        </div>
+        <div class="tab" onclick="switchTab('rankings')">
+          🎮 Choose Your Game
+        </div>
+        <!-- Onglet possession temporairement masqué -->
+        <!-- <div class="tab" onclick="switchTab('ownership')">
+          👥 Possession des Jeux
+        </div> -->
+      </div>
+    </div>
+    
+    <!-- Onglet 1: Filtrage par joueurs -->
+    <div id="filter-tab" class="tab-content active">
+      <div class="filter-section">
+        <div class="results-header">
+          <h3 class="filter-title">Sélectionner les joueurs :</h3>
+          <button class="clear-filters" onclick="clearAllFilters()">Tout décocher</button>
+        </div>
+
+        <div class="stats-info">
+          📊 <strong>Système intelligent</strong> : Génération automatique de toutes les combinaisons possibles (2 à 6 joueurs) avec calcul des moyennes basé sur les notes individuelles.
+        </div>
+        
+        <div class="players-grid" id="playersGrid">
+          <!-- Les checkboxes seront générées automatiquement -->
+        </div>
+      </div>
+      
+      <!-- Section Suggestions -->
+      <div class="suggestions-section" id="suggestionsSection">
+        <h3 class="suggestions-title">💡 Suggestions intelligentes</h3>
+        <div id="suggestionsContent">
+          <!-- Les suggestions apparaîtront ici -->
+        </div>
+      </div>
+      
+      <div class="results-section">
+        <div class="results-header">
+          <h3 class="results-title">Résultats :</h3>
+          <div class="results-count" id="resultsCount">0 jeu(x)</div>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>🎲 Jeu</th>
+                <th>⭐ Score Moyen</th>
+                <th>🖥️ Puissance PC</th>
+                <th>💰 Prix</th>
+                <th>👥 Joueurs Max</th>
+              </tr>
+            </thead>
+            <tbody id="gameTableBody">
+              <!-- Les résultats apparaîtront ici -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="no-results" id="noResults" style="display: none;">
+          <div class="no-results-icon">🎯</div>
+          <h3>Aucun jeu trouvé</h3>
+          <p>Essayez de sélectionner d'autres joueurs</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglet 2: Top combinaisons -->
+    <div id="rankings-tab" class="tab-content">
+      <div class="top-rankings">
+        
+        <!-- Filtres -->
+        <div class="rankings-filters">
+          <h3 class="rankings-filters-title">🎛️ Filtres intelligents</h3>
+          <div class="filter-groups">
+            
+            <div class="filter-group">
+              <h4 class="filter-group-title">👥 Nombre de joueurs</h4>
+              <div class="filter-buttons">
+                <div class="filter-button active" data-filter="players" data-value="all">Tous</div>
+                <div class="filter-button" data-filter="players" data-value="2">Duos</div>
+                <div class="filter-button" data-filter="players" data-value="3">Trios</div>
+                <div class="filter-button" data-filter="players" data-value="4">4 joueurs</div>
+                <div class="filter-button" data-filter="players" data-value="5+">5+ joueurs</div>
+              </div>
+            </div>
+            
+            <div class="filter-group">
+              <h4 class="filter-group-title">⭐ Score minimum</h4>
+              <div class="filter-buttons">
+                <div class="filter-button active" data-filter="score" data-value="0">Tous scores</div>
+                <div class="filter-button" data-filter="score" data-value="3.0">≥ 3.0</div>
+                <div class="filter-button" data-filter="score" data-value="3.5">≥ 3.5</div>
+                <div class="filter-button" data-filter="score" data-value="4.0">≥ 4.0</div>
+              </div>
+            </div>
+            
+            <div class="filter-group">
+              <h4 class="filter-group-title">🖥️ Puissance PC</h4>
+              <div class="filter-buttons">
+                <div class="filter-button active" data-filter="pc" data-value="all">Toutes</div>
+                <div class="filter-button" data-filter="pc" data-value="light">Léger (★★☆☆☆)</div>
+                <div class="filter-button" data-filter="pc" data-value="medium">Moyen (★★★☆☆)</div>
+                <div class="filter-button" data-filter="pc" data-value="high">Élevé (★★★★★)</div>
+              </div>
+            </div>
+            
+            <div class="filter-group">
+              <h4 class="filter-group-title">💰 Budget</h4>
+              <div class="filter-buttons">
+                <div class="filter-button active" data-filter="price" data-value="all">Tous prix</div>
+                <div class="filter-button" data-filter="price" data-value="cheap">≤ 10€</div>
+                <div class="filter-button" data-filter="price" data-value="medium">≤ 25€</div>
+                <div class="filter-button" data-filter="price" data-value="free">Déjà possédé</div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        
+        <!-- Info des résultats filtrés -->
+        <div class="filter-results-info" id="filterResultsInfo" style="display: none;">
+          📊 Filtres actifs • <span id="filteredGamesCount">0</span> jeux correspondent à vos critères
+        </div>
+        
+        <div id="topRankings">
+          <!-- Le contenu sera généré automatiquement -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Données détaillées des jeux
+    const gameDetails = {
+      "Payday II/III": { players: 4, pcPower: 4, steamPrice: 4.00, igPrice: 12.00, icon: "🏦" },
+      "Sea of Thieves": { players: 4, pcPower: 3, steamPrice: 40.00, igPrice: 18.00, icon: "🏴‍☠️" },
+      "Helldivers II": { players: 4, pcPower: 5, steamPrice: 40.00, igPrice: 30.00, icon: "👽" },
+      "Void Crew": { players: 6, pcPower: 4, steamPrice: 25.00, igPrice: 18.00, icon: "🚀" },
+      "Rematch": { players: 10, pcPower: 3, steamPrice: 25.00, igPrice: 17.00, icon: "🥊" },
+      "Worms WMD": { players: 6, pcPower: 1, steamPrice: 3.00, igPrice: 30.00, icon: "🪱" },
+      "Pummel Party": { players: 8, pcPower: 2, steamPrice: 15.00, igPrice: 11.00, icon: "🎪" },
+      "Guilty As Sock!": { players: 8, pcPower: 1, steamPrice: 6.00, igPrice: null, icon: "🧦" },
+      "Feather Party": { players: 4, pcPower: 1, steamPrice: 5.00, igPrice: null, icon: "🪶" },
+      "Peak": { players: 4, pcPower: 1, steamPrice: 8.00, igPrice: null, icon: "⛰️" },
+      "Lethal Company": { players: 4, pcPower: 2, steamPrice: 10.00, igPrice: null, icon: "👻" },
+      "Emissary Zero": { players: 4, pcPower: 1, steamPrice: 9.00, igPrice: null, icon: "🕵️" },
+      "R.E.P.O.": { players: 4, pcPower: 1, steamPrice: 10.00, igPrice: null, icon: "📦" },
+      "The Headliners": { players: 4, pcPower: 1, steamPrice: 8.00, igPrice: null, icon: "🎤" },
+      "Phasmophobia": { players: 4, pcPower: 2, steamPrice: 20.00, igPrice: 5.00, icon: "👻" },
+      "Suns of the Forest": { players: 8, pcPower: 4, steamPrice: 30.00, igPrice: null, icon: "🌲" },
+      "Plate Up!": { players: 4, pcPower: 1, steamPrice: 20.00, igPrice: 5.00, icon: "🍽️" },
+      "7 Days to Die": { players: 8, pcPower: 3, steamPrice: 44.00, igPrice: 17.00, icon: "🧟" },
+      "Satisfactory": { players: 12, pcPower: 4, steamPrice: 29.00, igPrice: 39.00, icon: "🏭" },
+      "Fast Food Simulator": { players: 4, pcPower: 2, steamPrice: 15.00, igPrice: null, icon: "🍔" },
+      "Schedule I": { players: 4, pcPower: 1, steamPrice: 20.00, igPrice: null, icon: "💊" },
+      "Terraria": { players: 8, pcPower: 1, steamPrice: 9.75, igPrice: 6.69, icon: "⛏️" },
+      "Palworld": { players: 4, pcPower: 4, steamPrice: 21.74, igPrice: 28.97, icon: "🦄" },
+      "Valheim": { players: 10, pcPower: 4, steamPrice: 19.99, igPrice: 15.19, icon: "⚔️" },
+      "Dead Island": { players: 3, pcPower: 3, steamPrice: null, igPrice: null, icon: "🏝️" },
+      "Sunderfolk": { players: 4, pcPower: 1, steamPrice: 49.99, igPrice: null, icon: "🎭" }
+    };
+    const individualScores = {
+      "Arthur": {
+        "Payday II/III": 2.5, "Sea of Thieves": 4, "Helldivers II": 3, "Void Crew": 3, "Rematch": 1, "Worms WMD": 1.5,
+        "Pummel Party": 2, "Guilty As Sock!": 1, "Feather Party": 3, "Peak": 3.5, "Lethal Company": 3.5, "Emissary Zero": 4,
+        "R.E.P.O.": 2.5, "The Headliners": 2.5, "Phasmophobia": 3, "Suns of the Forest": 3.5, "Plate Up!": 2.5,
+        "7 Days to Die": 3.5, "Satisfactory": 2.5, "Fast Food Simulator": 3, "Schedule I": 2.5
+      },
+      "Benoît": {
+        "Payday II/III": 2, "Sea of Thieves": 3.5, "Helldivers II": 4, "Void Crew": 3.5, "Rematch": 1, "Worms WMD": 3,
+        "Pummel Party": 3, "Guilty As Sock!": 3, "Feather Party": 2.5, "Peak": 3.5, "Lethal Company": 3.5, "Emissary Zero": 3.5,
+        "R.E.P.O.": 4, "The Headliners": 2.5, "Phasmophobia": 4.5, "Suns of the Forest": 1, "Plate Up!": 0.5,
+        "7 Days to Die": 2.5, "Satisfactory": 2, "Fast Food Simulator": 1, "Schedule I": 1
+      },
+      "Dorian": {
+        "Payday II/III": 3, "Sea of Thieves": 2.5, "Helldivers II": 3, "Void Crew": 2, "Rematch": 3, "Worms WMD": 4.5,
+        "Pummel Party": 3.5, "Guilty As Sock!": 3, "Feather Party": 4, "Peak": 4, "Lethal Company": 2, "Emissary Zero": 3,
+        "R.E.P.O.": 2.5, "The Headliners": 3, "Phasmophobia": 3, "Suns of the Forest": 1.5, "Plate Up!": 1,
+        "7 Days to Die": 3.5, "Satisfactory": 1.5, "Fast Food Simulator": 1.5, "Schedule I": 1
+      },
+      "Guilhem": {
+        "Payday II/III": 3, "Sea of Thieves": 4.5, "Helldivers II": 0, "Void Crew": 0, "Rematch": 0, "Worms WMD": 4,
+        "Pummel Party": 1.5, "Guilty As Sock!": 0, "Feather Party": 2.5, "Peak": 3, "Lethal Company": 2.5, "Emissary Zero": 0,
+        "R.E.P.O.": 0, "The Headliners": 1.5, "Phasmophobia": 1.5, "Suns of the Forest": 0, "Plate Up!": 1,
+        "7 Days to Die": 3.5, "Satisfactory": 5, "Fast Food Simulator": 0, "Schedule I": 1.5
+      },
+      "Romain": {
+        "Payday II/III": 2.5, "Sea of Thieves": 3.5, "Helldivers II": 4.5, "Void Crew": 3.5, "Rematch": 2.5, "Worms WMD": 3,
+        "Pummel Party": 2.5, "Guilty As Sock!": 3, "Feather Party": 3.5, "Peak": 4, "Lethal Company": 4, "Emissary Zero": 4,
+        "R.E.P.O.": 4, "The Headliners": 3, "Phasmophobia": 3, "Suns of the Forest": 2.5, "Plate Up!": 2,
+        "7 Days to Die": 4, "Satisfactory": 3.5, "Fast Food Simulator": 3.5, "Schedule I": 4
+      },
+      "Youssef": {
+        "Payday II/III": 2, "Sea of Thieves": 1.5, "Helldivers II": 0, "Void Crew": 1.5, "Rematch": 4, "Worms WMD": 1.5,
+        "Pummel Party": 3, "Guilty As Sock!": 2, "Feather Party": 4, "Peak": 2, "Lethal Company": 1, "Emissary Zero": 1,
+        "R.E.P.O.": 0.5, "The Headliners": 2, "Phasmophobia": 1, "Suns of the Forest": 1, "Plate Up!": 1.5,
+        "7 Days to Die": 2, "Satisfactory": 1, "Fast Food Simulator": 3, "Schedule I": 1
+      }
+    };
+
+    // Liste de tous les joueurs
+    const allPlayers = Object.keys(individualScores);
+    
+    // Liste de tous les jeux
+    const allGames = [...new Set(Object.values(individualScores).flatMap(games => Object.keys(games)))];
+
+    // Fonction pour générer toutes les combinaisons possibles
+    function generateCombinations(arr, minSize = 2, maxSize = arr.length) {
+      const result = [];
+      
+      function combine(start, combo) {
+        if (combo.length >= minSize && combo.length <= maxSize) {
+          result.push([...combo]);
+        }
+        if (combo.length === maxSize) return;
+        
+        for (let i = start; i < arr.length; i++) {
+          combo.push(arr[i]);
+          combine(i + 1, combo);
+          combo.pop();
+        }
+      }
+      
+      combine(0, []);
+      return result;
+    }
+
+    // Calculer la moyenne d'une combinaison pour un jeu
+    function calculateAverage(players, game) {
+      const scores = players
+        .map(player => individualScores[player][game])
+        .filter(score => score !== undefined);
+      
+      if (scores.length === 0) return null;
+      return Math.round((scores.reduce((sum, score) => sum + score, 0) / scores.length) * 100) / 100;
+    }
+
+    // Générer toutes les données possibles
+    function generateAllCombinations() {
+      const combinations = generateCombinations(allPlayers);
+      const gameData = [];
+
+      combinations.forEach(playerCombo => {
+        allGames.forEach(game => {
+          const averageScore = calculateAverage(playerCombo, game);
+          if (averageScore !== null) {
+            gameData.push({
+              players: [...playerCombo].sort(),
+              game: game,
+              score: averageScore
+            });
+          }
+        });
+      });
+
+      return gameData;
+    }
+
+    // Générer toutes les données
+    const gameData = generateAllCombinations();
+    
+    // Générer les checkboxes
+    function generatePlayerCheckboxes() {
+      const playersGrid = document.getElementById('playersGrid');
+      playersGrid.innerHTML = '';
+      
+      allPlayers.forEach(player => {
+        const div = document.createElement('div');
+        div.className = 'player-checkbox';
+        div.innerHTML = `
+          <input type="checkbox" value="${player}" id="player-${player}">
+          <label for="player-${player}">${player}</label>
+        `;
+        
+        div.addEventListener('click', () => {
+          const checkbox = div.querySelector('input');
+          checkbox.checked = !checkbox.checked;
+          div.classList.toggle('checked', checkbox.checked);
+          filterAndSortTable();
+        });
+        
+        playersGrid.appendChild(div);
+      });
+    }
+    
+    // Obtenir la classe CSS pour le score
+    function getScoreClass(score) {
+      if (score >= 3.5) return 'score-excellent';
+      if (score >= 2.5) return 'score-good';
+      if (score >= 1.5) return 'score-average';
+      return 'score-poor';
+    }
+    
+    // Filtrer et trier le tableau
+    function filterAndSortTable() {
+      const selectedPlayers = Array.from(document.querySelectorAll('#playersGrid input:checked'))
+        .map(cb => cb.value)
+        .sort();
+      
+      const tbody = document.getElementById('gameTableBody');
+      const noResults = document.getElementById('noResults');
+      const resultsCount = document.getElementById('resultsCount');
+      
+      let filteredGames;
+      
+      if (selectedPlayers.length === 0) {
+        // Aucun joueur sélectionné -> masquer le tableau
+        filteredGames = [];
+      } else {
+        // Filtrer pour les combinaisons exactes
+        filteredGames = gameData.filter(game => {
+          const gamePlayers = [...game.players].sort();
+          return JSON.stringify(gamePlayers) === JSON.stringify(selectedPlayers);
+        });
+      }
+      
+      // Trier par score décroissant
+      filteredGames.sort((a, b) => b.score - a.score);
+      
+      // Générer des suggestions intelligentes
+      generateSuggestions(selectedPlayers);
+      
+      // Mettre à jour le compteur
+      resultsCount.textContent = `${filteredGames.length} jeu(x)`;
+      
+      if (filteredGames.length === 0) {
+        tbody.innerHTML = '';
+        if (selectedPlayers.length === 0) {
+          // Aucun joueur sélectionné -> afficher message personnalisé
+          noResults.innerHTML = `
+            <div class="no-results-icon">👋</div>
+            <h3>Sélectionnez des joueurs</h3>
+            <p>Choisissez une combinaison de joueurs pour voir les jeux recommandés</p>
+          `;
+        } else {
+          // Combinaison sélectionnée mais pas de jeux -> message par défaut
+          noResults.innerHTML = `
+            <div class="no-results-icon">🎯</div>
+            <h3>Aucun jeu trouvé</h3>
+            <p>Essayez de sélectionner d'autres joueurs</p>
+          `;
+        }
+        noResults.style.display = 'block';
+        document.querySelector('.table-container').style.display = 'none';
+      } else {
+        noResults.style.display = 'none';
+        document.querySelector('.table-container').style.display = 'block';
+        
+        tbody.innerHTML = filteredGames.map(game => {
+          const details = gameDetails[game.game];
+          if (!details) return '';
+          
+          // Générer les étoiles pour la puissance PC
+          const pcStars = Array.from({length: 5}, (_, i) => 
+            `<span class="star ${i < details.pcPower ? '' : 'empty'}">★</span>`
+          ).join('');
+          
+          // Calculer l'affichage des prix - version plus lisible
+          let priceDisplay = '';
+          if (details.steamPrice && details.igPrice) {
+            // Les deux prix disponibles - afficher avec couleur pour le meilleur
+            const steamLower = details.steamPrice <= details.igPrice;
+            priceDisplay = `
+              <div style="display: flex; flex-direction: column; gap: 2px; font-size: 0.85em;">
+                <div style="color: ${steamLower ? '#10b981' : '#6b7280'}; font-weight: ${steamLower ? '700' : '500'};">
+                  Steam: ${details.steamPrice.toFixed(2)}€
+                </div>
+                <div style="color: ${!steamLower ? '#10b981' : '#6b7280'}; font-weight: ${!steamLower ? '700' : '500'};">
+                  IG: ${details.igPrice.toFixed(2)}€
+                </div>
+              </div>
+            `;
+          } else if (details.steamPrice) {
+            priceDisplay = `<span style="color: #10b981; font-weight: 600;">Steam: ${details.steamPrice.toFixed(2)}€</span>`;
+          } else if (details.igPrice) {
+            priceDisplay = `<span style="color: #10b981; font-weight: 600;">IG: ${details.igPrice.toFixed(2)}€</span>`;
+          } else {
+            priceDisplay = `<span style="color: #9ca3af;">N/A</span>`;
+          }
+          
+          return `
+            <tr>
+              <td class="game-title-cell">
+                <div style="display: flex; align-items: center;">
+                  <span class="game-icon">${details.icon}</span>
+                  <span>${game.game}</span>
+                </div>
+              </td>
+              <td class="score ${getScoreClass(game.score)}">${game.score}</td>
+              <td>
+                <div class="pc-requirement">
+                  ${pcStars}
+                  <div class="pc-tooltip-inline">
+                    <div class="pc-tooltip-inline-title">🖥️ Puissance PC Requise</div>
+                    <div class="pc-tooltip-inline-levels">
+                      <div class="pc-tooltip-inline-level">
+                        <div class="pc-tooltip-inline-stars">★☆☆☆☆</div>
+                        <div class="pc-tooltip-inline-desc">Config bureautique ou vieux matériel</div>
+                      </div>
+                      <div class="pc-tooltip-inline-level">
+                        <div class="pc-tooltip-inline-stars">★★☆☆☆</div>
+                        <div class="pc-tooltip-inline-desc">PC portable gaming entrée de gamme</div>
+                      </div>
+                      <div class="pc-tooltip-inline-level">
+                        <div class="pc-tooltip-inline-stars">★★★☆☆</div>
+                        <div class="pc-tooltip-inline-desc">GTX 1060 / RX 580 / i5 "moyenne gamme"</div>
+                      </div>
+                      <div class="pc-tooltip-inline-level">
+                        <div class="pc-tooltip-inline-stars">★★★★☆</div>
+                        <div class="pc-tooltip-inline-desc">RTX 2060-3060 / i7 récent, 16 Go RAM</div>
+                      </div>
+                      <div class="pc-tooltip-inline-level">
+                        <div class="pc-tooltip-inline-stars">★★★★★</div>
+                        <div class="pc-tooltip-inline-desc">RTX 3070+ / i9 haut de gamme</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td style="min-width: 100px;">${priceDisplay}</td>
+              <td style="text-align: center; font-weight: 600;">${details.players}</td>
+            </tr>
+          `;
+        }).filter(row => row !== '').join('');
+      }
+    }
+
+    // Fonctions pour les tooltips PC
+    let currentPcTooltip = null;
+
+    function showPcTooltip(event) {
+      hidePcTooltip(); // Cacher le précédent tooltip
+      
+      const tooltip = document.createElement('div');
+      tooltip.className = 'pc-tooltip';
+      tooltip.style.position = 'absolute';
+      tooltip.style.zIndex = '1000';
+      
+      tooltip.innerHTML = `
+        <div class="pc-tooltip-title">🖥️ Puissance PC Requise</div>
+        <div class="pc-tooltip-levels">
+          <div class="pc-tooltip-level">
+            <div class="pc-tooltip-stars">★☆☆☆☆</div>
+            <div class="pc-tooltip-desc">Config bureautique ou vieux matériel</div>
+          </div>
+          <div class="pc-tooltip-level">
+            <div class="pc-tooltip-stars">★★☆☆☆</div>
+            <div class="pc-tooltip-desc">Petite carte graphique ou PC portable gaming entrée de gamme</div>
+          </div>
+          <div class="pc-tooltip-level">
+            <div class="pc-tooltip-stars">★★★☆☆</div>
+            <div class="pc-tooltip-desc">GTX 1060 / RX 580 / i5 "moyenne gamme"</div>
+          </div>
+          <div class="pc-tooltip-level">
+            <div class="pc-tooltip-stars">★★★★☆</div>
+            <div class="pc-tooltip-desc">GTX 1080, RTX 2060-3060 / i7 récent, 16 Go RAM</div>
+          </div>
+          <div class="pc-tooltip-level">
+            <div class="pc-tooltip-stars">★★★★★</div>
+            <div class="pc-tooltip-desc">RTX 3070+ / i9 haut de gamme</div>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(tooltip);
+      currentPcTooltip = tooltip;
+
+      // Position du tooltip
+      const rect = event.target.getBoundingClientRect();
+      const tooltipRect = tooltip.getBoundingClientRect();
+      
+      let left = rect.left + window.scrollX;
+      let top = rect.top + window.scrollY - tooltipRect.height - 10;
+
+      // Ajustement si le tooltip dépasse à droite
+      if (left + tooltipRect.width > window.innerWidth) {
+        left = window.innerWidth - tooltipRect.width - 20;
+      }
+
+      // Ajustement si le tooltip dépasse en haut
+      if (top < window.scrollY) {
+        top = rect.bottom + window.scrollY + 10;
+      }
+
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+      
+      // Animation d'apparition
+      setTimeout(() => tooltip.classList.add('show'), 10);
+    }
+
+    function hidePcTooltip() {
+      if (currentPcTooltip) {
+        currentPcTooltip.remove();
+        currentPcTooltip = null;
+      }
+    }
+    
+    // Générer des suggestions intelligentes
+    function generateSuggestions(selectedPlayers) {
+      const suggestionsSection = document.getElementById('suggestionsSection');
+      const suggestionsContent = document.getElementById('suggestionsContent');
+      
+      if (selectedPlayers.length === 0) {
+        suggestionsSection.classList.remove('show');
+        return;
+      }
+      
+      const suggestions = [];
+      
+      // Cas 1: Si un seul joueur sélectionné, proposer ses meilleurs duos
+      if (selectedPlayers.length === 1) {
+        const player = selectedPlayers[0];
+        const playerDuos = gameData
+          .filter(game => game.players.length === 2 && game.players.includes(player))
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 3);
+        
+        playerDuos.forEach(duo => {
+          const partner = duo.players.find(p => p !== player);
+          suggestions.push({
+            type: 'duo',
+            text: `Excellent duo avec <span class="highlight-combo">${partner}</span> sur ${duo.game} (${duo.score})`,
+            combo: duo.players,
+            reason: 'meilleur_duo'
+          });
+        });
+      }
+      
+      // Cas 2: Si deux joueurs sélectionnés, chercher qui ajouter pour améliorer
+      if (selectedPlayers.length === 2) {
+        const currentDuo = selectedPlayers.sort();
+        const duoGames = gameData.filter(game => 
+          game.players.length === 2 && 
+          JSON.stringify(game.players.sort()) === JSON.stringify(currentDuo)
+        );
+        
+        duoGames.forEach(duoGame => {
+          if (duoGame.score >= 3.5) { // Seulement pour les bons scores
+            // Chercher des trios possibles avec ce duo
+            const possibleTrios = gameData.filter(game =>
+              game.players.length === 3 &&
+              currentDuo.every(player => game.players.includes(player))
+            ).sort((a, b) => b.score - a.score);
+            
+            possibleTrios.slice(0, 2).forEach(trio => {
+              const newPlayer = trio.players.find(p => !currentDuo.includes(p));
+              suggestions.push({
+                type: 'trio',
+                text: `Votre duo (${duoGame.score}) + <span class="highlight-combo">${newPlayer}</span> = ${trio.score} sur ${trio.game}`,
+                combo: trio.players,
+                reason: 'extension_duo'
+              });
+            });
+          }
+        });
+      }
+      
+      // Cas 3: Détecter des duos avec scores identiques élevés (comme ton exemple)
+      if (selectedPlayers.length === 0) {
+        const highScoreDuos = gameData
+          .filter(game => game.players.length === 2 && game.score >= 3.7)
+          .reduce((acc, game) => {
+            const key = game.game;
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(game);
+            return acc;
+          }, {});
+        
+        Object.keys(highScoreDuos).forEach(gameName => {
+          const duos = highScoreDuos[gameName];
+          if (duos.length >= 2) {
+            // Chercher si il y a des trios possibles
+            const allPlayers = [...new Set(duos.flatMap(d => d.players))];
+            if (allPlayers.length >= 3) {
+              const possibleTrio = gameData.find(game =>
+                game.game === gameName &&
+                game.players.length === 3 &&
+                game.players.every(p => allPlayers.includes(p))
+              );
+              
+              if (possibleTrio) {
+                suggestions.push({
+                  type: 'pattern',
+                  text: `${gameName}: Plusieurs duos excellents → Essayez <span class="highlight-combo">${possibleTrio.players.join(', ')}</span> (${possibleTrio.score})`,
+                  combo: possibleTrio.players,
+                  reason: 'pattern_detection'
+                });
+              }
+            }
+          }
+        });
+      }
+      
+      // Afficher les suggestions
+      if (suggestions.length > 0) {
+        suggestionsContent.innerHTML = suggestions.slice(0, 3).map(suggestion => `
+          <div class="suggestion-item">
+            <div class="suggestion-text">${suggestion.text}</div>
+            <button class="suggestion-button" onclick="applySuggestion(['${suggestion.combo.join("', '")}'])">
+              Tester
+            </button>
+          </div>
+        `).join('');
+        suggestionsSection.classList.add('show');
+      } else {
+        suggestionsSection.classList.remove('show');
+      }
+    }
+    
+    // Appliquer une suggestion
+    function applySuggestion(players) {
+      // Décocher tout d'abord
+      clearAllFilters();
+      
+      // Cocher les joueurs suggérés
+      players.forEach(player => {
+        const checkbox = document.querySelector(`input[value="${player}"]`);
+        if (checkbox) {
+          checkbox.checked = true;
+          checkbox.closest('.player-checkbox').classList.add('checked');
+        }
+      });
+      
+      // Filtrer les résultats
+      filterAndSortTable();
+    }
+    function switchTab(tabName) {
+      // Masquer tous les onglets
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      // Activer l'onglet sélectionné
+      event.target.classList.add('active');
+      document.getElementById(tabName + '-tab').classList.add('active');
+      
+      // Générer le contenu selon l'onglet
+      if (tabName === 'rankings') {
+        generateTopRankings();
+        initializeFilters();
+      } else if (tabName === 'ownership') {
+        generateOwnershipView();
+        initializeOwnershipFilters();
+      }
+    }
+
+    // Données de possession des jeux - Pour l'instant personne n'a rien
+    const gameOwnership = {};
+    
+    // Initialiser avec des listes vides (personne ne possède les jeux pour l'instant)
+    allGames.forEach(game => {
+      gameOwnership[game] = []; // Liste vide = personne ne possède le jeu
+    });
+
+    // Variables pour les filtres
+    let currentFilters = {
+      players: 'all',
+      score: 0,
+      pc: 'all',
+      price: 'all'
+    };
+
+    // Générer le top des combinaisons par jeu avec filtres
+    function generateTopRankings() {
+      const topRankingsContainer = document.getElementById('topRankings');
+      
+      // Grouper les données par jeu
+      const gameGroups = {};
+      gameData.forEach(game => {
+        if (!gameGroups[game.game]) {
+          gameGroups[game.game] = [];
+        }
+        gameGroups[game.game].push(game);
+      });
+      
+      // Appliquer les filtres
+      const filteredGames = Object.keys(gameGroups).filter(gameName => {
+        const details = gameDetails[gameName];
+        if (!details) return false;
+        
+        // Filtre puissance PC
+        if (currentFilters.pc === 'light' && details.pcPower > 2) return false;
+        if (currentFilters.pc === 'medium' && (details.pcPower < 3 || details.pcPower > 3)) return false;
+        if (currentFilters.pc === 'high' && details.pcPower < 4) return false;
+        
+        // Filtre prix
+        const minPrice = Math.min(details.steamPrice || Infinity, details.igPrice || Infinity);
+        if (currentFilters.price === 'cheap' && minPrice > 10) return false;
+        if (currentFilters.price === 'medium' && minPrice > 25) return false;
+        if (currentFilters.price === 'free' && minPrice !== Infinity) return false; // Jeux "possédés"
+        
+        // Vérifier s'il y a des combinaisons qui passent les autres filtres
+        const validCombinations = gameGroups[gameName].filter(combo => {
+          // Filtre nombre de joueurs
+          if (currentFilters.players !== 'all') {
+            if (currentFilters.players === '5+' && combo.players.length < 5) return false;
+            if (currentFilters.players !== '5+' && combo.players.length !== parseInt(currentFilters.players)) return false;
+          }
+          
+          // Filtre score
+          if (combo.score < currentFilters.score) return false;
+          
+          return true;
+        });
+        
+        return validCombinations.length > 0;
+      });
+      
+      // Mettre à jour l'info des résultats
+      const filterResultsInfo = document.getElementById('filterResultsInfo');
+      const filteredGamesCount = document.getElementById('filteredGamesCount');
+      
+      const hasActiveFilters = Object.values(currentFilters).some((value, index) => {
+        const defaults = ['all', 0, 'all', 'all'];
+        return value !== defaults[index];
+      });
+      
+      if (hasActiveFilters) {
+        filteredGamesCount.textContent = filteredGames.length;
+        filterResultsInfo.style.display = 'block';
+      } else {
+        filterResultsInfo.style.display = 'none';
+      }
+      
+      let html = '';
+      
+      // Pour chaque jeu filtré, créer une section avec le top 10
+      filteredGames.sort().forEach(gameName => {
+        const combinations = gameGroups[gameName];
+        
+        // Appliquer les filtres aux combinaisons
+        const filteredCombinations = combinations.filter(combo => {
+          // Filtre nombre de joueurs
+          if (currentFilters.players !== 'all') {
+            if (currentFilters.players === '5+' && combo.players.length < 5) return false;
+            if (currentFilters.players !== '5+' && combo.players.length !== parseInt(currentFilters.players)) return false;
+          }
+          
+          // Filtre score
+          if (combo.score < currentFilters.score) return false;
+          
+          return true;
+        });
+        
+        const topCombinations = filteredCombinations
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 10);
+        
+        if (topCombinations.length === 0) return;
+        
+        const details = gameDetails[gameName];
+        if (!details) return;
+        
+        html += `
+          <div class="game-section">
+            <div class="game-section-header">
+              <span style="font-size: 2em;">${details.icon}</span>
+              <div>
+                <h3 class="game-section-title">${gameName}</h3>
+                <div class="game-section-info">${topCombinations.length} combinaisons • Meilleur score: ${topCombinations[0].score}</div>
+              </div>
+            </div>
+            <div class="rankings-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>🏆 Rang</th>
+                    <th>👥 Combinaison</th>
+                    <th>⭐ Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${topCombinations.map((combo, index) => {
+                    let rankClass = '';
+                    if (index === 0) rankClass = 'top1';
+                    else if (index === 1) rankClass = 'top2';
+                    else if (index === 2) rankClass = 'top3';
+                    
+                    return `
+                      <tr>
+                        <td>
+                          <div class="rank-number ${rankClass}">${index + 1}</div>
+                        </td>
+                        <td class="player-combo">${combo.players.join(', ')}</td>
+                        <td class="score ${getScoreClass(combo.score)}">${combo.score}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      });
+      
+      if (html === '') {
+        html = `
+          <div style="text-align: center; padding: 60px; color: #64748b;">
+            <div style="font-size: 4em; margin-bottom: 20px;">🎯</div>
+            <h3>Aucun jeu ne correspond aux filtres</h3>
+            <p>Essayez d'ajuster vos critères de filtrage</p>
+          </div>
+        `;
+      }
+      
+      topRankingsContainer.innerHTML = html;
+    }
+
+    // Gestion des filtres
+    function initializeFilters() {
+      document.querySelectorAll('.filter-button').forEach(button => {
+        button.addEventListener('click', () => {
+          const filterType = button.dataset.filter;
+          const filterValue = button.dataset.value;
+          
+          // Désactiver les autres boutons du même groupe
+          document.querySelectorAll(`[data-filter="${filterType}"]`).forEach(btn => {
+            btn.classList.remove('active');
+          });
+          
+          // Activer le bouton cliqué
+          button.classList.add('active');
+          
+          // Mettre à jour les filtres
+          if (filterType === 'score') {
+            currentFilters[filterType] = parseFloat(filterValue);
+          } else {
+            currentFilters[filterType] = filterValue;
+          }
+          
+          // Régénérer les rankings
+          generateTopRankings();
+        });
+      });
+    }
+
+    // Générer la vue de possession des jeux
+    function generateOwnershipView(filter = 'all') {
+      const ownershipGrid = document.getElementById('ownershipGrid');
+      
+      // Filtrer les jeux selon le filtre actuel
+      const filteredGames = allGames.filter(game => {
+        const owners = gameOwnership[game];
+        const ownerCount = owners.length;
+        
+        switch(filter) {
+          case 'everyone': return ownerCount === allPlayers.length;
+          case 'majority': return ownerCount >= 4;
+          case 'minority': return ownerCount <= 2;
+          case 'missing': return ownerCount < allPlayers.length;
+          default: return true;
+        }
+      });
+      
+      const html = filteredGames.map(game => {
+        const details = gameDetails[game];
+        const owners = gameOwnership[game];
+        const missingPlayers = allPlayers.filter(p => !owners.includes(p));
+        const ownershipPercent = Math.round((owners.length / allPlayers.length) * 100);
+        
+        if (!details) return '';
+        
+        // Calculer le prix minimum
+        const minPrice = Math.min(details.steamPrice || Infinity, details.igPrice || Infinity);
+        const priceDisplay = minPrice === Infinity ? 'N/A' : `${minPrice.toFixed(2)}€`;
+        
+        // Générer les étoiles PC
+        const pcStars = Array.from({length: 5}, (_, i) => 
+          i < details.pcPower ? '★' : '☆'
+        ).join('');
+        
+        return `
+          <div class="game-card">
+            <div class="game-card-header">
+              <span class="game-card-icon">${details.icon}</span>
+              <h3 class="game-card-title">${game}</h3>
+            </div>
+            
+            <div class="game-card-info">
+              <div class="game-info-grid">
+                <div class="info-item">
+                  <div class="info-label">👥 Joueurs</div>
+                  <div class="info-value">${details.players} max</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">🖥️ Puissance</div>
+                  <div class="info-value">${pcStars}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">💰 Prix min</div>
+                  <div class="info-value">${priceDisplay}</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="ownership-list">
+              <div class="ownership-stats">
+                <div class="ownership-count">${owners.length}/${allPlayers.length} possèdent</div>
+                <div class="ownership-percentage">${ownershipPercent}%</div>
+              </div>
+              
+              <div class="players-list">
+                ${owners.map(player => `
+                  <span class="player-badge">${player}</span>
+                `).join('')}
+                ${missingPlayers.map(player => `
+                  <span class="player-badge missing">${player}</span>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }).filter(card => card !== '').join('');
+      
+      if (html === '') {
+        ownershipGrid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #64748b;">
+            <div style="font-size: 4em; margin-bottom: 20px;">🎮</div>
+            <h3>Aucun jeu ne correspond au filtre</h3>
+            <p>Essayez un autre critère de filtrage</p>
+          </div>
+        `;
+      } else {
+        ownershipGrid.innerHTML = html;
+      }
+    }
+
+    // Initialiser les filtres de possession
+    function initializeOwnershipFilters() {
+      document.querySelectorAll('[data-ownership-filter]').forEach(button => {
+        button.addEventListener('click', () => {
+          // Désactiver tous les boutons
+          document.querySelectorAll('[data-ownership-filter]').forEach(btn => {
+            btn.classList.remove('active');
+          });
+          
+          // Activer le bouton cliqué
+          button.classList.add('active');
+          
+          // Régénérer la vue
+          const filter = button.dataset.ownershipFilter;
+          generateOwnershipView(filter);
+        });
+      });
+    }
+
+    // Fonction pour tout décocher
+    function clearAllFilters() {
+      document.querySelectorAll('#playersGrid input').forEach(checkbox => {
+        checkbox.checked = false;
+        checkbox.closest('.player-checkbox').classList.remove('checked');
+      });
+      filterAndSortTable();
+    }
+    
+    // Initialisation
+    generatePlayerCheckboxes();
+    filterAndSortTable();
+  </script>
+</body>
+</html>

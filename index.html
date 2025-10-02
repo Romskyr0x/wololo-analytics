@@ -1671,24 +1671,22 @@
       // Filtrer les résultats
       filterAndSortTable();
     }
-    function switchTab(tabName) {
-      // Masquer tous les onglets
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-      
-      // Activer l'onglet sélectionné
-      event.target.classList.add('active');
-      document.getElementById(tabName + '-tab').classList.add('active');
-      
-      // Générer le contenu selon l'onglet
-      if (tabName === 'rankings') {
-        generateTopRankings();
-        initializeFilters();
-      } else if (tabName === 'ownership') {
-        generateOwnershipView();
-        initializeOwnershipFilters();
-      }
-    }
+	function switchTab(tabName) {
+	  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+	  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+	  
+	  event.target.classList.add('active');
+	  document.getElementById(tabName + '-tab').classList.add('active');
+	  
+	  if (tabName === 'rankings') {
+		generateTopRankings();
+		initializeFilters();
+	  } else if (tabName === 'ownership') {
+		generateOwnershipView();
+	  } else if (tabName === 'availability') {
+		generateAvailabilityView();
+	  }
+	}
 
     // Données de possession des jeux - Pour l'instant personne n'a rien
     const gameOwnership = {};
@@ -2150,23 +2148,7 @@ const gameOwnership = {
 	}
 
 	// Modifier la fonction switchTab
-	function switchTab(tabName) {
-	  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-	  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-	  
-	  event.target.classList.add('active');
-	  document.getElementById(tabName + '-tab').classList.add('active');
-	  
-	  if (tabName === 'rankings') {
-		generateTopRankings();
-		initializeFilters();
-	  } else if (tabName === 'ownership') {
-		generateOwnershipView();
-	  } else if (tabName === 'availability') {
-		generateAvailabilityView();
-	  }
-	}
-    
+
     // Initialisation
     generatePlayerCheckboxes();
     filterAndSortTable();

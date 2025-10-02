@@ -987,7 +987,7 @@
                 <th>🎲 Jeu</th>
                 <th>⭐ Score Moyen</th>
                 <th>🖥️ Puissance PC</th>
-                <th>💰 Prix</th>
+                <th>💰 Prix au 02/10</th>
                 <th>👥 Joueurs Max</th>
               </tr>
             </thead>
@@ -1074,25 +1074,25 @@
     // Données détaillées des jeux
     const gameDetails = {
       "Payday II/III": { players: 4, pcPower: 4, steamPrice: 4.00, igPrice: 12.00, icon: "🏦" },
-      "Sea of Thieves": { players: 4, pcPower: 3, steamPrice: 40.00, igPrice: 18.00, icon: "🏴‍☠️" },
-      "Helldivers II": { players: 4, pcPower: 5, steamPrice: 40.00, igPrice: 30.00, icon: "👽" },
+      "Sea of Thieves": { players: 4, pcPower: 3, steamPrice: 39.99, igPrice: 18.00, icon: "🏴‍☠️" },
+      "Helldivers II": { players: 4, pcPower: 5, steamPrice: 29.99, igPrice: 30.00, icon: "👽" },
       "Void Crew": { players: 6, pcPower: 4, steamPrice: 25.00, igPrice: 18.00, icon: "🚀" },
       "Rematch": { players: 10, pcPower: 3, steamPrice: 25.00, igPrice: 17.00, icon: "🥊" },
-      "Worms WMD": { players: 6, pcPower: 1, steamPrice: 3.00, igPrice: 30.00, icon: "🪱" },
-      "Pummel Party": { players: 8, pcPower: 2, steamPrice: 15.00, igPrice: 11.00, icon: "🎪" },
-      "Guilty As Sock!": { players: 8, pcPower: 1, steamPrice: 6.00, igPrice: null, icon: "🧦" },
-      "Feather Party": { players: 4, pcPower: 1, steamPrice: 5.00, igPrice: null, icon: "🪶" },
-      "Peak": { players: 4, pcPower: 1, steamPrice: 8.00, igPrice: null, icon: "⛰️" },
-      "Lethal Company": { players: 4, pcPower: 2, steamPrice: 10.00, igPrice: null, icon: "👻" },
+      "Worms WMD": { players: 6, pcPower: 1, steamPrice: 29.99, igPrice: 3.15, icon: "🪱" },
+      "Pummel Party": { players: 8, pcPower: 2, steamPrice: 14.99, igPrice: 11.00, icon: "🎪" },
+      "Guilty As Sock!": { players: 8, pcPower: 1, steamPrice: 5.50, igPrice: null, icon: "🧦" },
+      "Feather Party": { players: 8, pcPower: 1, steamPrice: 4.99, igPrice: null, icon: "🪶" },
+      "Peak": { players: 4, pcPower: 1, steamPrice: 7.99, igPrice: null, icon: "⛰️" },
+      "Lethal Company": { players: 4, pcPower: 2, steamPrice: 9.75, igPrice: null, icon: "👻" },
       "Emissary Zero": { players: 4, pcPower: 1, steamPrice: 9.00, igPrice: null, icon: "🕵️" },
       "R.E.P.O.": { players: 4, pcPower: 1, steamPrice: 10.00, igPrice: null, icon: "📦" },
-      "The Headliners": { players: 4, pcPower: 1, steamPrice: 8.00, igPrice: null, icon: "🎤" },
-      "Phasmophobia": { players: 4, pcPower: 2, steamPrice: 20.00, igPrice: 5.00, icon: "👻" },
+      "The Headliners": { players: 4, pcPower: 1, steamPrice: 7.99, igPrice: null, icon: "🎤" },
+      "Phasmophobia": { players: 4, pcPower: 2, steamPrice: 14.99, igPrice: 5.00, icon: "👻" },
       "Suns of the Forest": { players: 8, pcPower: 4, steamPrice: 30.00, igPrice: null, icon: "🌲" },
       "Plate Up!": { players: 4, pcPower: 1, steamPrice: 20.00, igPrice: 5.00, icon: "🍽️" },
-      "7 Days to Die": { players: 8, pcPower: 3, steamPrice: 44.00, igPrice: 17.00, icon: "🧟" },
-      "Satisfactory": { players: 12, pcPower: 4, steamPrice: 29.00, igPrice: 39.00, icon: "🏭" },
-      "Fast Food Simulator": { players: 4, pcPower: 2, steamPrice: 15.00, igPrice: null, icon: "🍔" },
+      "7 Days to Die": { players: 8, pcPower: 3, steamPrice: 44.99, igPrice: 17.00, icon: "🧟" },
+      "Satisfactory": { players: 4, pcPower: 4, steamPrice: 28.99, igPrice: 39.00, icon: "🏭" },
+      "Fast Food Simulator": { players: 6, pcPower: 2, steamPrice: 15.00, igPrice: null, icon: "🍔" },
       "Schedule I": { players: 4, pcPower: 1, steamPrice: 20.00, igPrice: null, icon: "💊" },
       "Terraria": { players: 8, pcPower: 1, steamPrice: 9.75, igPrice: 6.69, icon: "⛏️" },
       "Palworld": { players: 4, pcPower: 4, steamPrice: 21.74, igPrice: 28.97, icon: "🦄" },
@@ -1250,9 +1250,15 @@
       } else {
         // Filtrer pour les combinaisons exactes
         filteredGames = gameData.filter(game => {
-          const gamePlayers = [...game.players].sort();
-          return JSON.stringify(gamePlayers) === JSON.stringify(selectedPlayers);
-        });
+		const gamePlayers = [...game.players].sort();
+		const matchesCombo = JSON.stringify(gamePlayers) === JSON.stringify(selectedPlayers);
+  
+		// Vérifier que le jeu peut accueillir le nombre de joueurs sélectionnés
+		const gameInfo = gameDetails[game.game];
+		const canAccommodate = gameInfo && gameInfo.players >= selectedPlayers.length;
+  
+		return matchesCombo && canAccommodate;
+		});
       }
       
       // Trier par score décroissant

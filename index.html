@@ -1199,6 +1199,8 @@
       "Dead Island": { players: 3, pcPower: 3, steamPrice: null, igPrice: null, icon: "🏝️" },
       "Sunderfolk": { players: 4, pcPower: 1, steamPrice: 49.99, igPrice: null, icon: "🎭" }
     };
+  const allPlayers = ["Arthur", "Benoît", "Dorian", "Guilhem", "Romain", "Youssef"];
+  const allGames = Object.keys(gameDetails);  
     const individualScores = {
       "Arthur": {
         "Payday II/III": 2.5, "Sea of Thieves": 4, "Helldivers II": 3, "Void Crew": 3, "Rematch": 1, "Worms WMD": 1.5,
@@ -1237,13 +1239,6 @@
         "7 Days to Die": 2, "Satisfactory": 1, "Fast Food Simulator": 3, "Schedule I": 1
       }
     };
-
-    // Liste de tous les joueurs
-    const allPlayers = Object.keys(individualScores);
-    
-    // Liste de tous les jeux
-    const allGames = [...new Set(Object.values(individualScores).flatMap(games => Object.keys(games)))];
-
     // Fonction pour générer toutes les combinaisons possibles
     function generateCombinations(arr, minSize = 2, maxSize = arr.length) {
       const result = [];
@@ -1264,7 +1259,6 @@
       combine(0, []);
       return result;
     }
-
     // Calculer la moyenne d'une combinaison pour un jeu
     function calculateAverage(players, game) {
       const scores = players
@@ -1274,12 +1268,10 @@
       if (scores.length === 0) return null;
       return Math.round((scores.reduce((sum, score) => sum + score, 0) / scores.length) * 100) / 100;
     }
-
     // Générer toutes les données possibles
     function generateAllCombinations() {
       const combinations = generateCombinations(allPlayers);
       const gameData = [];
-
       combinations.forEach(playerCombo => {
         allGames.forEach(game => {
           const averageScore = calculateAverage(playerCombo, game);
@@ -1292,10 +1284,8 @@
           }
         });
       });
-
       return gameData;
     }
-
     // Générer toutes les données
     const gameData = generateAllCombinations();
     
@@ -1349,15 +1339,15 @@
       } else {
         // Filtrer pour les combinaisons exactes
         filteredGames = gameData.filter(game => {
-		const gamePlayers = [...game.players].sort();
-		const matchesCombo = JSON.stringify(gamePlayers) === JSON.stringify(selectedPlayers);
+    const gamePlayers = [...game.players].sort();
+    const matchesCombo = JSON.stringify(gamePlayers) === JSON.stringify(selectedPlayers);
   
-		// Vérifier que le jeu peut accueillir le nombre de joueurs sélectionnés
-		const gameInfo = gameDetails[game.game];
-		const canAccommodate = gameInfo && gameInfo.players >= selectedPlayers.length;
+    // Vérifier que le jeu peut accueillir le nombre de joueurs sélectionnés
+    const gameInfo = gameDetails[game.game];
+    const canAccommodate = gameInfo && gameInfo.players >= selectedPlayers.length;
   
-		return matchesCombo && canAccommodate;
-		});
+    return matchesCombo && canAccommodate;
+    });
       }
       
       // Trier par score décroissant
@@ -1470,10 +1460,8 @@
         }).filter(row => row !== '').join('');
       }
     }
-
     // Fonctions pour les tooltips PC
     let currentPcTooltip = null;
-
     function showPcTooltip(event) {
       hidePcTooltip(); // Cacher le précédent tooltip
       
@@ -1507,34 +1495,28 @@
           </div>
         </div>
       `;
-
       document.body.appendChild(tooltip);
       currentPcTooltip = tooltip;
-
       // Position du tooltip
       const rect = event.target.getBoundingClientRect();
       const tooltipRect = tooltip.getBoundingClientRect();
       
       let left = rect.left + window.scrollX;
       let top = rect.top + window.scrollY - tooltipRect.height - 10;
-
       // Ajustement si le tooltip dépasse à droite
       if (left + tooltipRect.width > window.innerWidth) {
         left = window.innerWidth - tooltipRect.width - 20;
       }
-
       // Ajustement si le tooltip dépasse en haut
       if (top < window.scrollY) {
         top = rect.bottom + window.scrollY + 10;
       }
-
       tooltip.style.left = `${left}px`;
       tooltip.style.top = `${top}px`;
       
       // Animation d'apparition
       setTimeout(() => tooltip.classList.add('show'), 10);
     }
-
     function hidePcTooltip() {
       if (currentPcTooltip) {
         currentPcTooltip.remove();
@@ -1671,32 +1653,25 @@
       // Filtrer les résultats
       filterAndSortTable();
     }
-	
-	function switchTab(tabName) {
-	  // Récupérer tous les onglets et contenus
-	  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-	  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-	  
-	  // Activer l'onglet cliqué
-	  document.querySelector(`[onclick*="'${tabName}'"]`).classList.add('active');
-	  document.getElementById(tabName + '-tab').classList.add('active');
-	  
-	  // Générer le contenu selon l'onglet
-	  if (tabName === 'rankings') {
-		generateTopRankings();
-		initializeFilters();
-	  } else if (tabName === 'ownership') {
-		generateOwnershipView();
-	  } else if (tabName === 'availability') {
-		generateAvailabilityView();
-	  }
-	}
-
-    // Initialiser avec des listes vides (personne ne possède les jeux pour l'instant)
-    allGames.forEach(game => {
-      gameOwnership[game] = []; // Liste vide = personne ne possède le jeu
-    });
-
+  
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    // Trouver l'onglet cliqué et l'activer
+    event.currentTarget.classList.add('active');
+    document.getElementById(tabName + '-tab').classList.add('active');
+    
+    // Générer le contenu selon l'onglet
+    if (tabName === 'rankings') {
+    generateTopRankings();
+    initializeFilters();
+    } else if (tabName === 'ownership') {
+    generateOwnershipView();
+    } else if (tabName === 'availability') {
+    generateAvailabilityView();
+    }
+  }
     // Variables pour les filtres
     let currentFilters = {
       players: 'all',
@@ -1704,153 +1679,130 @@
       pc: 'all',
       price: 'all'
     };
-
     // Générer le top des combinaisons par jeu avec filtres
-    function generateTopRankings() {
-      const topRankingsContainer = document.getElementById('topRankings');
-      
-      // Grouper les données par jeu
-      const gameGroups = {};
-      gameData.forEach(game => {
-        if (!gameGroups[game.game]) {
-          gameGroups[game.game] = [];
-        }
-        gameGroups[game.game].push(game);
-      });
-      
-      // Appliquer les filtres
-      const filteredGames = Object.keys(gameGroups).filter(gameName => {
-        const details = gameDetails[gameName];
-        if (!details) return false;
-        
-        // Filtre puissance PC
-        if (currentFilters.pc === 'light' && details.pcPower > 2) return false;
-        if (currentFilters.pc === 'medium' && (details.pcPower < 3 || details.pcPower > 3)) return false;
-        if (currentFilters.pc === 'high' && details.pcPower < 4) return false;
-        
-        // Filtre prix
-        const minPrice = Math.min(details.steamPrice || Infinity, details.igPrice || Infinity);
-        if (currentFilters.price === 'cheap' && minPrice > 10) return false;
-        if (currentFilters.price === 'medium' && minPrice > 25) return false;
-        if (currentFilters.price === 'free' && minPrice !== Infinity) return false; // Jeux "possédés"
-        
-        // Vérifier s'il y a des combinaisons qui passent les autres filtres
-        const validCombinations = gameGroups[gameName].filter(combo => {
-          // Filtre nombre de joueurs
-          if (currentFilters.players !== 'all') {
-            if (currentFilters.players === '5+' && combo.players.length < 5) return false;
-            if (currentFilters.players !== '5+' && combo.players.length !== parseInt(currentFilters.players)) return false;
-          }
-          
-          // Filtre score
-          if (combo.score < currentFilters.score) return false;
-          
-          return true;
-        });
-        
-        return validCombinations.length > 0;
-      });
-      
-      // Mettre à jour l'info des résultats
-      const filterResultsInfo = document.getElementById('filterResultsInfo');
-      const filteredGamesCount = document.getElementById('filteredGamesCount');
-      
-      const hasActiveFilters = Object.values(currentFilters).some((value, index) => {
-        const defaults = ['all', 0, 'all', 'all'];
-        return value !== defaults[index];
-      });
-      
-      if (hasActiveFilters) {
-        filteredGamesCount.textContent = filteredGames.length;
-        filterResultsInfo.style.display = 'block';
-      } else {
-        filterResultsInfo.style.display = 'none';
-      }
-      
-      let html = '';
-      
-      // Pour chaque jeu filtré, créer une section avec le top 10
-      filteredGames.sort().forEach(gameName => {
-        const combinations = gameGroups[gameName];
-        
-        // Appliquer les filtres aux combinaisons
-        const filteredCombinations = combinations.filter(combo => {
-          // Filtre nombre de joueurs
-          if (currentFilters.players !== 'all') {
-            if (currentFilters.players === '5+' && combo.players.length < 5) return false;
-            if (currentFilters.players !== '5+' && combo.players.length !== parseInt(currentFilters.players)) return false;
-          }
-          
-          // Filtre score
-          if (combo.score < currentFilters.score) return false;
-          
-          return true;
-        });
-        
-        const topCombinations = filteredCombinations
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 10);
-        
-        if (topCombinations.length === 0) return;
-        
-        const details = gameDetails[gameName];
-        if (!details) return;
-        
-        html += `
-          <div class="game-section">
-            <div class="game-section-header">
-              <span style="font-size: 2em;">${details.icon}</span>
-              <div>
-                <h3 class="game-section-title">${gameName}</h3>
-                <div class="game-section-info">${topCombinations.length} combinaisons • Meilleur score: ${topCombinations[0].score}</div>
-              </div>
-            </div>
-            <div class="rankings-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>🏆 Rang</th>
-                    <th>👥 Combinaison</th>
-                    <th>⭐ Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${topCombinations.map((combo, index) => {
-                    let rankClass = '';
-                    if (index === 0) rankClass = 'top1';
-                    else if (index === 1) rankClass = 'top2';
-                    else if (index === 2) rankClass = 'top3';
-                    
-                    return `
-                      <tr>
-                        <td>
-                          <div class="rank-number ${rankClass}">${index + 1}</div>
-                        </td>
-                        <td class="player-combo">${combo.players.join(', ')}</td>
-                        <td class="score ${getScoreClass(combo.score)}">${combo.score}</td>
-                      </tr>
-                    `;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-      });
-      
-      if (html === '') {
-        html = `
-          <div style="text-align: center; padding: 60px; color: #64748b;">
-            <div style="font-size: 4em; margin-bottom: 20px;">🎯</div>
-            <h3>Aucun jeu ne correspond aux filtres</h3>
-            <p>Essayez d'ajuster vos critères de filtrage</p>
-          </div>
-        `;
-      }
-      
-      topRankingsContainer.innerHTML = html;
+   function generateTopRankings() {
+    const topRankingsContainer = document.getElementById('topRankings');
+    
+    const gameGroups = {};
+    gameData.forEach(game => {
+    if (!gameGroups[game.game]) {
+      gameGroups[game.game] = [];
     }
-
+    gameGroups[game.game].push(game);
+    });
+    
+    const filteredGames = Object.keys(gameGroups).filter(gameName => {
+    const details = gameDetails[gameName];
+    if (!details) return false;
+    
+    if (currentFilters.pc === 'light' && details.pcPower > 2) return false;
+    if (currentFilters.pc === 'medium' && (details.pcPower < 3 || details.pcPower > 3)) return false;
+    if (currentFilters.pc === 'high' && details.pcPower < 4) return false;
+    
+    const minPrice = Math.min(details.steamPrice || Infinity, details.igPrice || Infinity);
+    if (currentFilters.price === 'cheap' && minPrice > 10) return false;
+    if (currentFilters.price === 'medium' && minPrice > 25) return false;
+    if (currentFilters.price === 'free' && minPrice !== Infinity) return false;
+    
+    const validCombinations = gameGroups[gameName].filter(combo => {
+      if (currentFilters.players !== 'all') {
+      if (currentFilters.players === '5+' && combo.players.length < 5) return false;
+      if (currentFilters.players !== '5+' && combo.players.length !== parseInt(currentFilters.players)) return false;
+      }
+      if (combo.score < currentFilters.score) return false;
+      return true;
+    });
+    
+    return validCombinations.length > 0;
+    });
+    
+    const filterResultsInfo = document.getElementById('filterResultsInfo');
+    const filteredGamesCount = document.getElementById('filteredGamesCount');
+    
+    const hasActiveFilters = Object.values(currentFilters).some((value, index) => {
+    const defaults = ['all', 0, 'all', 'all'];
+    return value !== defaults[index];
+    });
+    
+    if (hasActiveFilters) {
+    filteredGamesCount.textContent = filteredGames.length;
+    filterResultsInfo.style.display = 'block';
+    } else {
+    filterResultsInfo.style.display = 'none';
+    }
+    
+    let html = '';
+    
+    filteredGames.sort().forEach(gameName => {
+    const combinations = gameGroups[gameName];
+    
+    const filteredCombinations = combinations.filter(combo => {
+      if (currentFilters.players !== 'all') {
+      if (currentFilters.players === '5+' && combo.players.length < 5) return false;
+      if (currentFilters.players !== '5+' && combo.players.length !== parseInt(currentFilters.players)) return false;
+      }
+      if (combo.score < currentFilters.score) return false;
+      return true;
+    });
+    
+    const topCombinations = filteredCombinations.sort((a, b) => b.score - a.score).slice(0, 10);
+    if (topCombinations.length === 0) return;
+    
+    const details = gameDetails[gameName];
+    if (!details) return;
+    
+    html += `
+      <div class="game-section">
+      <div class="game-section-header">
+        <span style="font-size: 2em;">${details.icon}</span>
+        <div>
+        <h3 class="game-section-title">${gameName}</h3>
+        <div class="game-section-info">${topCombinations.length} combinaisons • Meilleur score: ${topCombinations[0].score}</div>
+        </div>
+      </div>
+      <div class="rankings-table">
+        <table>
+        <thead>
+          <tr>
+          <th>🏆 Rang</th>
+          <th>👥 Combinaison</th>
+          <th>⭐ Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${topCombinations.map((combo, index) => {
+          let rankClass = '';
+          if (index === 0) rankClass = 'top1';
+          else if (index === 1) rankClass = 'top2';
+          else if (index === 2) rankClass = 'top3';
+          
+          return `
+            <tr>
+            <td><div class="rank-number ${rankClass}">${index + 1}</div></td>
+            <td class="player-combo">${combo.players.join(', ')}</td>
+            <td class="score ${getScoreClass(combo.score)}">${combo.score}</td>
+            </tr>
+          `;
+          }).join('')}
+        </tbody>
+        </table>
+      </div>
+      </div>
+    `;
+    });
+    
+    if (html === '') {
+    html = `
+      <div style="text-align: center; padding: 60px; color: #64748b;">
+      <div style="font-size: 4em; margin-bottom: 20px;">🎯</div>
+      <h3>Aucun jeu ne correspond aux filtres</h3>
+      <p>Essayez d'ajuster vos critères de filtrage</p>
+      </div>
+    `;
+    }
+    
+    topRankingsContainer.innerHTML = html;
+  }
     // Gestion des filtres
     function initializeFilters() {
       document.querySelectorAll('.filter-button').forEach(button => {
@@ -1878,7 +1830,7 @@
         });
       });
     }
-
+  
     // Générer la vue de possession des jeux
     function generateOwnershipView(filter = 'all') {
       const ownershipGrid = document.getElementById('ownershipGrid');
@@ -1969,7 +1921,6 @@
         ownershipGrid.innerHTML = html;
       }
     }
-
     // Initialiser les filtres de possession
     function initializeOwnershipFilters() {
       document.querySelectorAll('[data-ownership-filter]').forEach(button => {
@@ -1988,7 +1939,6 @@
         });
       });
     }
-
     // Fonction pour tout décocher
     function clearAllFilters() {
       document.querySelectorAll('#playersGrid input').forEach(checkbox => {
@@ -1997,156 +1947,119 @@
       });
       filterAndSortTable();
     }
-	
-	// Données de possession des jeux
-const gameOwnership = {
-  "Peak": ["Arthur", "Benoît","Dorian","Romain"],
-};
-
-	// Données de disponibilités
-	const timeSlots = [
-	  "Lundi 18h-20h", "Lundi 20h-22h", "Lundi 22h-00h",
-	  "Mardi 18h-20h", "Mardi 20h-22h", "Mardi 22h-00h",
-	  "Mercredi 18h-20h", "Mercredi 20h-22h", "Mercredi 22h-00h",
-	  "Jeudi 18h-20h", "Jeudi 20h-22h", "Jeudi 22h-00h",
-	  "Vendredi 18h-20h", "Vendredi 20h-22h", "Vendredi 22h-00h",
-	  "Samedi 14h-18h", "Samedi 18h-22h", "Samedi 22h-02h",
-	  "Dimanche 14h-18h", "Dimanche 18h-22h", "Dimanche 22h-02h"
-	];
-
-	let availabilities = {};
-	allPlayers.forEach(player => {
-	  availabilities[player] = {};
-	  timeSlots.forEach(slot => {
-		availabilities[player][slot] = false;
-	  });
-	});
-
-	// Générer la vue de possession
-	function generateOwnershipView() {
-	  const ownershipGrid = document.getElementById('ownershipGrid');
-	  
-	  const html = Object.keys(gameDetails).map(gameName => {
-		const details = gameDetails[gameName];
-		const owners = gameOwnership[gameName] || [];
-		const missingPlayers = allPlayers.filter(p => !owners.includes(p));
-		const ownershipPercent = Math.round((owners.length / allPlayers.length) * 100);
-		
-		const minPrice = Math.min(details.steamPrice || Infinity, details.igPrice || Infinity);
-		const priceDisplay = minPrice === Infinity ? 'N/A' : `${minPrice.toFixed(2)}€`;
-		const pcStars = Array.from({length: 5}, (_, i) => i < details.pcPower ? '★' : '☆').join('');
-		
-		return `
-		  <div class="game-card">
-			<div class="game-card-header">
-			  <span class="game-card-icon">${details.icon}</span>
-			  <h3 class="game-card-title">${gameName}</h3>
-			</div>
-			<div class="game-card-info">
-			  <div class="game-info-grid">
-				<div class="info-item">
-				  <div class="info-label">👥 Joueurs</div>
-				  <div class="info-value">${details.players} max</div>
-				</div>
-				<div class="info-item">
-				  <div class="info-label">🖥️ Puissance</div>
-				  <div class="info-value">${pcStars}</div>
-				</div>
-				<div class="info-item">
-				  <div class="info-label">💰 Prix min</div>
-				  <div class="info-value">${priceDisplay}</div>
-				</div>
-			  </div>
-			</div>
-			<div class="ownership-list">
-			  <div class="ownership-stats">
-				<div class="ownership-count">${owners.length}/${allPlayers.length} possèdent</div>
-				<div class="ownership-percentage">${ownershipPercent}%</div>
-			  </div>
-			  <div class="players-list">
-				${owners.map(player => `<span class="player-badge">${player}</span>`).join('')}
-				${missingPlayers.map(player => `<span class="player-badge missing">${player}</span>`).join('')}
-			  </div>
-			</div>
-		  </div>
-		`;
-	  }).join('');
-	  
-	  ownershipGrid.innerHTML = html;
-	}
-
-	// Générer la vue des disponibilités
-	function generateAvailabilityView() {
-	  const availabilityGrid = document.getElementById('availabilityGrid');
-	  
-	  let html = `
-		<table class="availability-table">
-		  <thead>
-			<tr>
-			  <th>Créneau</th>
-			  ${allPlayers.map(player => `<th>${player}</th>`).join('')}
-			</tr>
-		  </thead>
-		  <tbody>
-	  `;
-	  
-	  timeSlots.forEach(slot => {
-		html += `<tr><td>${slot}</td>`;
-		allPlayers.forEach(player => {
-		  const checked = availabilities[player][slot] ? 'checked' : '';
-		  html += `
-			<td>
-			  <input type="checkbox" 
-					 class="availability-checkbox" 
-					 ${checked}
-					 onchange="updateAvailability('${player}', '${slot}', this.checked)">
-			</td>
-		  `;
-		});
-		html += `</tr>`;
-	  });
-	  
-	  html += `</tbody></table>`;
-	  availabilityGrid.innerHTML = html;
-	  
-	  updateCommonSlots();
-	}
-
-	// Mettre à jour une disponibilité
-	function updateAvailability(player, slot, isAvailable) {
-	  availabilities[player][slot] = isAvailable;
-	  updateCommonSlots();
-	}
-
-	// Afficher les créneaux communs
-	function updateCommonSlots() {
-	  const commonSlots = document.getElementById('commonSlots');
-	  let html = '';
-	  
-	  timeSlots.forEach(slot => {
-		const availablePlayers = allPlayers.filter(player => availabilities[player][slot]);
-		
-		if (availablePlayers.length === allPlayers.length) {
-		  html += `<div class="common-slot">✅ ${slot} - Tous disponibles !</div>`;
-		} else if (availablePlayers.length >= 4) {
-		  html += `<div class="partial-slot">⚠️ ${slot} - ${availablePlayers.length}/${allPlayers.length} disponibles (${availablePlayers.join(', ')})</div>`;
-		}
-	  });
-	  
-	  if (html === '') {
-		html = '<p style="color: #64748b;">Aucun créneau commun pour le moment</p>';
-	  }
-	  
-	  commonSlots.innerHTML = html;
-	}
-
-	// Sauvegarder les disponibilités
-	function saveAvailabilities() {
-	  alert('✅ Disponibilités sauvegardées !');
-	}
-
-	// Modifier la fonction switchTab
-
+  
+  const gameOwnership = {
+    "Payday II/III": [],
+    "Sea of Thieves": [],
+    "Helldivers II": [],
+    "Void Crew": [],
+    "Rematch": [],
+    "Worms WMD": [],
+    "Pummel Party": [],
+    "Guilty As Sock!": [],
+    "Feather Party": [],
+    "Peak": [],
+    "Lethal Company": [],
+    "Emissary Zero": [],
+    "R.E.P.O.": [],
+    "The Headliners": [],
+    "Phasmophobia": [],
+    "Suns of the Forest": [],
+    "Plate Up!": [],
+    "7 Days to Die": [],
+    "Satisfactory": [],
+    "Fast Food Simulator": [],
+    "Schedule I": [],
+    "Terraria": [],
+    "Palworld": [],
+    "Valheim": [],
+    "Dead Island": [],
+    "Sunderfolk": []
+  };
+  // Données de disponibilités
+  const timeSlots = [
+    "Lundi 18h-20h", "Lundi 20h-22h", "Lundi 22h-00h",
+    "Mardi 18h-20h", "Mardi 20h-22h", "Mardi 22h-00h",
+    "Mercredi 18h-20h", "Mercredi 20h-22h", "Mercredi 22h-00h",
+    "Jeudi 18h-20h", "Jeudi 20h-22h", "Jeudi 22h-00h",
+    "Vendredi 18h-20h", "Vendredi 20h-22h", "Vendredi 22h-00h",
+    "Samedi 14h-18h", "Samedi 18h-22h", "Samedi 22h-02h",
+    "Dimanche 14h-18h", "Dimanche 18h-22h", "Dimanche 22h-02h"
+  ];
+  let availabilities = {};
+  allPlayers.forEach(player => {
+    availabilities[player] = {};
+    timeSlots.forEach(slot => {
+    availabilities[player][slot] = false;
+    });
+  });
+  // Générer la vue des disponibilités
+  function generateAvailabilityView() {
+    const availabilityGrid = document.getElementById('availabilityGrid');
+    
+    let html = `
+    <table class="availability-table">
+      <thead>
+      <tr>
+        <th>Créneau</th>
+        ${allPlayers.map(player => `<th>${player}</th>`).join('')}
+      </tr>
+      </thead>
+      <tbody>
+    `;
+    
+    timeSlots.forEach(slot => {
+    html += `<tr><td>${slot}</td>`;
+    allPlayers.forEach(player => {
+      const checked = availabilities[player][slot] ? 'checked' : '';
+      html += `
+      <td>
+        <input type="checkbox" 
+           class="availability-checkbox" 
+           ${checked}
+           onchange="updateAvailability('${player}', '${slot}', this.checked)">
+      </td>
+      `;
+    });
+    html += `</tr>`;
+    });
+    
+    html += `</tbody></table>`;
+    availabilityGrid.innerHTML = html;
+    
+    updateCommonSlots();
+  }
+  // Mettre à jour une disponibilité
+  function updateAvailability(player, slot, isAvailable) {
+    availabilities[player][slot] = isAvailable;
+    updateCommonSlots();
+  }
+  // Afficher les créneaux communs
+  function updateCommonSlots() {
+    const commonSlots = document.getElementById('commonSlots');
+    let html = '';
+    
+    timeSlots.forEach(slot => {
+    const availablePlayers = allPlayers.filter(player => availabilities[player][slot]);
+    
+    if (availablePlayers.length === allPlayers.length) {
+      html += `<div class="common-slot">✅ ${slot} - Tous disponibles !</div>`;
+    } else if (availablePlayers.length >= 4) {
+      html += `<div class="partial-slot">⚠️ ${slot} - ${availablePlayers.length}/${allPlayers.length} disponibles (${availablePlayers.join(', ')})</div>`;
+    }
+    });
+    
+    if (html === '') {
+    html = '<p style="color: #64748b;">Aucun créneau commun pour le moment</p>';
+    }
+    
+    commonSlots.innerHTML = html;
+  }
+  // Sauvegarder les disponibilités
+  function saveAvailabilities() {
+    alert('✅ Disponibilités sauvegardées !');
+  }
+  // Modifier la fonction switchTab
     // Initialisation
     generatePlayerCheckboxes();
     filterAndSortTable();

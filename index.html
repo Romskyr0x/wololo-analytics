@@ -1750,7 +1750,12 @@ const gameOwnership = {
       
       let html = '';
       
-      filteredGames.sort().forEach(gameName => {
+	// Trier par score moyen décroissant
+	filteredGames.sort((a, b) => {
+	  const scoreA = gameGroups[a].reduce((sum, combo) => sum + combo.score, 0) / gameGroups[a].length;
+	  const scoreB = gameGroups[b].reduce((sum, combo) => sum + combo.score, 0) / gameGroups[b].length;
+	  return scoreB - scoreA;
+	}).forEach(gameName => {
         const combinations = gameGroups[gameName];
         
         const filteredCombinations = combinations.filter(combo => {
@@ -1845,93 +1850,99 @@ const gameOwnership = {
       });
     }
 
-    // Générer la vue de possession des jeux
-    function generateOwnershipView(filter = 'all') {
-      const ownershipGrid = document.getElementById('ownershipGrid');
-      
-      const filteredGames = allGames.filter(game => {
-        const owners = gameOwnership[game];
-        const ownerCount = owners.length;
-        
-        switch(filter) {
-          case 'everyone': return ownerCount === allPlayers.length;
-          case 'majority': return ownerCount >= 4;
-          case 'minority': return ownerCount <= 2;
-          case 'missing': return ownerCount < allPlayers.length;
-          default: return true;
-        }
-      });
-      
-      const html = filteredGames.map(game => {
-        const details = gameDetails[game];
-        const owners = gameOwnership[game];
-        const missingPlayers = allPlayers.filter(p => !owners.includes(p));
-        const ownershipPercent = Math.round((owners.length / allPlayers.length) * 100);
-        
-        if (!details) return '';
-        
-        const minPrice = Math.min(details.steamPrice || Infinity, details.igPrice || Infinity);
-        const priceDisplay = minPrice === Infinity ? 'N/A' : `${minPrice.toFixed(2)}€`;
-        
-        const pcStars = Array.from({length: 5}, (_, i) => 
-          i < details.pcPower ? '★' : '☆'
-        ).join('');
-        
-        return `
-          <div class="game-card">
-            <div class="game-card-header">
-              <span class="game-card-icon">${details.icon}</span>
-              <h3 class="game-card-title">${game}</h3>
-            </div>
-            
-            <div class="game-card-info">
-              <div class="game-info-grid">
-                <div class="info-item">
-                  <div class="info-label">👥 Joueurs</div>
-                  <div class="info-value">${details.players} max</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">🖥️ Puissance</div>
-                  <div class="info-value">${pcStars}</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">💰 Prix min</div>
-                  <div class="info-value">${priceDisplay}</div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="ownership-list">
-              <div class="ownership-stats">
-                <div class="ownership-count">${owners.length}/${allPlayers.length} possèdent</div>
-                <div class="ownership-percentage">${ownershipPercent}%</div>
-              </div>
-              
-              <div class="players-list">
-                ${owners.map(player => `
-                  <span class="player-badge">${player}</span>
-                `).join('')}
-                ${missingPlayers.map(player => `
-                  <span class="player-badge missing">${player}</span>
-                `).join('')}
-              </div>
-            </div>
-          </div>
-        `;
-      }).filter(card => card !== '').join('');
-      
-      if (html === '') {
-        ownershipGrid.innerHTML = `
-          <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #64748b;">
-            <div style="font-size: 4em; margin-bottom: 20px;">🎮</div>
-            <h3>Aucun jeu ne correspond au filtre</h3>
-            <p>Essayez un autre critère de filtrage</p>
-          </div>
-        `;
-      } else {
-        ownershipGrid.innerHTML = html;
-      }
-    }
+		// Générer la vue de possession des jeux
+	// Générer la vue de possession des jeux
+	function generateOwnershipView(filter = 'all') {
+	  const ownershipGrid = document.getElementById('ownershipGrid');
+	  
+	  const filteredGames = allGames.filter(game => {
+		const owners = gameOwnership[game];
+		const ownerCount = owners.length;
+		
+		switch(filter) {
+		  case 'everyone': return ownerCount === allPlayers.length;
+		  case 'majority': return ownerCount >= 4;
+		  case 'minority': return ownerCount <= 2;
+		  case 'missing': return ownerCount < allPlayers.length;
+		  default: return true;
+		}
+	  });
+	  
+	  // NOUVEAU : Trier par nombre de possesseurs décroissant
+	  filteredGames.sort((a, b) => {
+		return gameOwnership[b].length - gameOwnership[a].length;
+	  });
+	  
+	  const html = filteredGames.map(game => {
+		const details = gameDetails[game];
+		const owners = gameOwnership[game];
+		const missingPlayers = allPlayers.filter(p => !owners.includes(p));
+		const ownershipPercent = Math.round((owners.length / allPlayers.length) * 100);
+		
+		if (!details) return '';
+		
+		const minPrice = Math.min(details.steamPrice || Infinity, details.igPrice || Infinity);
+		const priceDisplay = minPrice === Infinity ? 'N/A' : `${minPrice.toFixed(2)}€`;
+		
+		const pcStars = Array.from({length: 5}, (_, i) => 
+		  i < details.pcPower ? '★' : '☆'
+		).join('');
+		
+		return `
+		  <div class="game-card">
+			<div class="game-card-header">
+			  <span class="game-card-icon">${details.icon}</span>
+			  <h3 class="game-card-title">${game}</h3>
+			</div>
+			
+			<div class="game-card-info">
+			  <div class="game-info-grid">
+				<div class="info-item">
+				  <div class="info-label">👥 Joueurs</div>
+				  <div class="info-value">${details.players} max</div>
+				</div>
+				<div class="info-item">
+				  <div class="info-label">🖥️ Puissance</div>
+				  <div class="info-value">${pcStars}</div>
+				</div>
+				<div class="info-item">
+				  <div class="info-label">💰 Prix min</div>
+				  <div class="info-value">${priceDisplay}</div>
+				</div>
+			  </div>
+			</div>
+			
+			<div class="ownership-list">
+			  <div class="ownership-stats">
+				<div class="ownership-count">${owners.length}/${allPlayers.length} possèdent</div>
+				<div class="ownership-percentage">${ownershipPercent}%</div>
+			  </div>
+			  
+			  <div class="players-list">
+				${owners.map(player => `
+				  <span class="player-badge">${player}</span>
+				`).join('')}
+				${missingPlayers.map(player => `
+				  <span class="player-badge missing">${player}</span>
+				`).join('')}
+			  </div>
+			</div>
+		  </div>
+		`;
+	  }).filter(card => card !== '').join('');
+	  
+	  if (html === '') {
+		ownershipGrid.innerHTML = `
+		  <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #64748b;">
+			<div style="font-size: 4em; margin-bottom: 20px;">🎮</div>
+			<h3>Aucun jeu ne correspond au filtre</h3>
+			<p>Essayez un autre critère de filtrage</p>
+		  </div>
+		`;
+	  } else {
+		ownershipGrid.innerHTML = html;
+	  }
+	}
 
     // Fonction pour tout décocher
     function clearAllFilters() {

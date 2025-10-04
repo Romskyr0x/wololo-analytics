@@ -1003,9 +1003,6 @@
 		  <div class="tab" onclick="switchTab('ownership')">
 			💾 Whacha Got Bro?
 		  </div>
-		  <div class="tab" onclick="switchTab('availability')">
-			📅 Disponibilités
-		  </div>
 		</div>
     </div>
     
@@ -1140,32 +1137,7 @@
 		  <!-- Contenu généré par JavaScript -->
 		</div>
 	  </div>
-	</div>	
-	
-	<!-- Onglet 4: Disponibilités -->
-	<div id="availability-tab" class="tab-content">
-	  <div class="filter-section">
-		<div class="results-header">
-		  <h3 class="filter-title">📅 Disponibilités de la semaine</h3>
-		  <button class="clear-filters" onclick="saveAvailabilities()">💾 Sauvegarder</button>
-		</div>
-		
-		<div class="stats-info">
-		  ℹ️ Cochez les créneaux où chaque joueur est disponible. Les données sont sauvegardées automatiquement.
-		</div>
-		
-		<div id="availabilityGrid" style="overflow-x: auto;">
-		  <!-- Contenu généré par JavaScript -->
-		</div>
-		
-		<div style="margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 12px;">
-		  <h4 style="margin: 0 0 15px 0; color: #334155;">🎯 Créneaux communs</h4>
-		  <div id="commonSlots">
-			<!-- Affichage des créneaux où tout le monde est disponible -->
-		  </div>
-		</div>
-	  </div>
-	</div>	
+	</div>		
 	
   </div>
 
@@ -1382,82 +1354,95 @@
         noResults.style.display = 'none';
         document.querySelector('.table-container').style.display = 'block';
         
-        tbody.innerHTML = filteredGames.map(game => {
-          const details = gameDetails[game.game];
-          if (!details) return '';
+		tbody.innerHTML = filteredGames.map(game => {
+		  const details = gameDetails[game.game];
+		  if (!details) return '';
           
+		    // Vérifier combien de joueurs sélectionnés possèdent le jeu
+		  const ownersCount = gameOwnership[game.game].filter(owner => 
+			selectedPlayers.includes(owner)
+		  ).length;
+		  
+		    // Badge de possession
+		  let ownershipBadge = '';
+		  if (ownersCount === selectedPlayers.length) {
+			ownershipBadge = '<span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 10px; font-size: 0.75em; margin-left: 8px; font-weight: 600;">✓ Tous possèdent</span>';
+		  } else if (ownersCount > 0) {
+			ownershipBadge = `<span style="background: #f59e0b; color: white; padding: 3px 8px; border-radius: 10px; font-size: 0.75em; margin-left: 8px; font-weight: 600;">${ownersCount}/${selectedPlayers.length} possèdent</span>`;
+		  }
+		  
           // Générer les étoiles pour la puissance PC
-          const pcStars = Array.from({length: 5}, (_, i) => 
-            `<span class="star ${i < details.pcPower ? '' : 'empty'}">★</span>`
-          ).join('');
+		  const pcStars = Array.from({length: 5}, (_, i) => 
+			`<span class="star ${i < details.pcPower ? '' : 'empty'}">★</span>`
+		  ).join('');
           
           // Calculer l'affichage des prix - version plus lisible
-          let priceDisplay = '';
-          if (details.steamPrice && details.igPrice) {
-            // Les deux prix disponibles - afficher avec couleur pour le meilleur
-            const steamLower = details.steamPrice <= details.igPrice;
-            priceDisplay = `
-              <div style="display: flex; flex-direction: column; gap: 2px; font-size: 0.85em;">
-                <div style="color: ${steamLower ? '#10b981' : '#6b7280'}; font-weight: ${steamLower ? '700' : '500'};">
-                  Steam: ${details.steamPrice.toFixed(2)}€
-                </div>
-                <div style="color: ${!steamLower ? '#10b981' : '#6b7280'}; font-weight: ${!steamLower ? '700' : '500'};">
-                  IG: ${details.igPrice.toFixed(2)}€
-                </div>
-              </div>
-            `;
-          } else if (details.steamPrice) {
-            priceDisplay = `<span style="color: #10b981; font-weight: 600;">Steam: ${details.steamPrice.toFixed(2)}€</span>`;
-          } else if (details.igPrice) {
-            priceDisplay = `<span style="color: #10b981; font-weight: 600;">IG: ${details.igPrice.toFixed(2)}€</span>`;
-          } else {
-            priceDisplay = `<span style="color: #9ca3af;">N/A</span>`;
-          }
+		  let priceDisplay = '';
+		  if (details.steamPrice && details.igPrice) {
+			const steamLower = details.steamPrice <= details.igPrice;
+			priceDisplay = `
+			  <div style="display: flex; flex-direction: column; gap: 2px; font-size: 0.85em;">
+				<div style="color: ${steamLower ? '#10b981' : '#6b7280'}; font-weight: ${steamLower ? '700' : '500'};">
+				  Steam: ${details.steamPrice.toFixed(2)}€
+				</div>
+				<div style="color: ${!steamLower ? '#10b981' : '#6b7280'}; font-weight: ${!steamLower ? '700' : '500'};">
+				  IG: ${details.igPrice.toFixed(2)}€
+				</div>
+			  </div>
+			`;
+		  } else if (details.steamPrice) {
+			priceDisplay = `<span style="color: #10b981; font-weight: 600;">Steam: ${details.steamPrice.toFixed(2)}€</span>`;
+		  } else if (details.igPrice) {
+			priceDisplay = `<span style="color: #10b981; font-weight: 600;">IG: ${details.igPrice.toFixed(2)}€</span>`;
+		  } else {
+			priceDisplay = `<span style="color: #9ca3af;">N/A</span>`;
+		  }
           
-          return `
-            <tr>
-              <td class="game-title-cell">
-                <div style="display: flex; align-items: center;">
-                  <span class="game-icon">${details.icon}</span>
-                  <span>${game.game}</span>
-                </div>
-              </td>
-              <td class="score ${getScoreClass(game.score)}">${game.score}</td>
-              <td>
-                <div class="pc-requirement">
-                  ${pcStars}
-                  <div class="pc-tooltip-inline">
-                    <div class="pc-tooltip-inline-title">🖥️ Puissance PC Requise</div>
-                    <div class="pc-tooltip-inline-levels">
-                      <div class="pc-tooltip-inline-level">
-                        <div class="pc-tooltip-inline-stars">★☆☆☆☆</div>
-                        <div class="pc-tooltip-inline-desc">Config bureautique ou vieux matériel</div>
-                      </div>
-                      <div class="pc-tooltip-inline-level">
-                        <div class="pc-tooltip-inline-stars">★★☆☆☆</div>
-                        <div class="pc-tooltip-inline-desc">PC portable gaming entrée de gamme</div>
-                      </div>
-                      <div class="pc-tooltip-inline-level">
-                        <div class="pc-tooltip-inline-stars">★★★☆☆</div>
-                        <div class="pc-tooltip-inline-desc">GTX 1060 / RX 580 / i5 "moyenne gamme"</div>
-                      </div>
-                      <div class="pc-tooltip-inline-level">
-                        <div class="pc-tooltip-inline-stars">★★★★☆</div>
-                        <div class="pc-tooltip-inline-desc">RTX 2060-3060 / i7 récent, 16 Go RAM</div>
-                      </div>
-                      <div class="pc-tooltip-inline-level">
-                        <div class="pc-tooltip-inline-stars">★★★★★</div>
-                        <div class="pc-tooltip-inline-desc">RTX 3070+ / i9 haut de gamme</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td style="min-width: 100px;">${priceDisplay}</td>
-              <td style="text-align: center; font-weight: 600;">${details.players}</td>
-            </tr>
-          `;
-        }).filter(row => row !== '').join('');
+		 return `
+			<tr style="${ownersCount === selectedPlayers.length ? 'background: #f0fdf4;' : ''}">
+			  <td class="game-title-cell">
+				<div style="display: flex; align-items: center;">
+				  <span class="game-icon">${details.icon}</span>
+				  <span>${game.game}</span>
+				  ${ownershipBadge}
+				</div>
+			  </td>
+			  <td class="score ${getScoreClass(game.score)}">${game.score}</td>
+			  <td>
+				<div class="pc-requirement">
+				  ${pcStars}
+				  <div class="pc-tooltip-inline">
+					<div class="pc-tooltip-inline-title">🖥️ Puissance PC Requise</div>
+					<div class="pc-tooltip-inline-levels">
+					  <div class="pc-tooltip-inline-level">
+						<div class="pc-tooltip-inline-stars">★☆☆☆☆</div>
+						<div class="pc-tooltip-inline-desc">Config bureautique ou vieux matériel</div>
+					  </div>
+					  <div class="pc-tooltip-inline-level">
+						<div class="pc-tooltip-inline-stars">★★☆☆☆</div>
+						<div class="pc-tooltip-inline-desc">PC portable gaming entrée de gamme</div>
+					  </div>
+					  <div class="pc-tooltip-inline-level">
+						<div class="pc-tooltip-inline-stars">★★★☆☆</div>
+						<div class="pc-tooltip-inline-desc">GTX 1060 / RX 580 / i5 "moyenne gamme"</div>
+					  </div>
+					  <div class="pc-tooltip-inline-level">
+						<div class="pc-tooltip-inline-stars">★★★★☆</div>
+						<div class="pc-tooltip-inline-desc">RTX 2060-3060 / i7 récent, 16 Go RAM</div>
+					  </div>
+					  <div class="pc-tooltip-inline-level">
+						<div class="pc-tooltip-inline-stars">★★★★★</div>
+						<div class="pc-tooltip-inline-desc">RTX 3070+ / i9 haut de gamme</div>
+					  </div>
+					</div>
+				  </div>
+				</div>
+			  </td>
+			  <td style="min-width: 100px;">${priceDisplay}</td>
+			  <td style="text-align: center; font-weight: 600;">${details.players}</td>
+			</tr>
+		  `;
+		}).filter(row => row !== '').join('');
       }
     }
     // Fonctions pour les tooltips PC
@@ -1668,9 +1653,6 @@
     initializeFilters();
     } else if (tabName === 'ownership') {
     generateOwnershipView();
-    } else if (tabName === 'availability') {
-    generateAvailabilityView();
-    }
   }
     // Variables pour les filtres
     let currentFilters = {
@@ -1958,7 +1940,7 @@
     "Pummel Party": [],
     "Guilty As Sock!": [],
     "Feather Party": [],
-    "Peak": [],
+    "Peak": ["Arthur","Benoît","Dorian","Romain"],
     "Lethal Company": [],
     "Emissary Zero": [],
     "R.E.P.O.": [],
@@ -1976,89 +1958,7 @@
     "Dead Island": [],
     "Sunderfolk": []
   };
-  // Données de disponibilités
-  const timeSlots = [
-    "Lundi 18h-20h", "Lundi 20h-22h", "Lundi 22h-00h",
-    "Mardi 18h-20h", "Mardi 20h-22h", "Mardi 22h-00h",
-    "Mercredi 18h-20h", "Mercredi 20h-22h", "Mercredi 22h-00h",
-    "Jeudi 18h-20h", "Jeudi 20h-22h", "Jeudi 22h-00h",
-    "Vendredi 18h-20h", "Vendredi 20h-22h", "Vendredi 22h-00h",
-    "Samedi 14h-18h", "Samedi 18h-22h", "Samedi 22h-02h",
-    "Dimanche 14h-18h", "Dimanche 18h-22h", "Dimanche 22h-02h"
-  ];
-  let availabilities = {};
-  allPlayers.forEach(player => {
-    availabilities[player] = {};
-    timeSlots.forEach(slot => {
-    availabilities[player][slot] = false;
-    });
-  });
-  // Générer la vue des disponibilités
-  function generateAvailabilityView() {
-    const availabilityGrid = document.getElementById('availabilityGrid');
-    
-    let html = `
-    <table class="availability-table">
-      <thead>
-      <tr>
-        <th>Créneau</th>
-        ${allPlayers.map(player => `<th>${player}</th>`).join('')}
-      </tr>
-      </thead>
-      <tbody>
-    `;
-    
-    timeSlots.forEach(slot => {
-    html += `<tr><td>${slot}</td>`;
-    allPlayers.forEach(player => {
-      const checked = availabilities[player][slot] ? 'checked' : '';
-      html += `
-      <td>
-        <input type="checkbox" 
-           class="availability-checkbox" 
-           ${checked}
-           onchange="updateAvailability('${player}', '${slot}', this.checked)">
-      </td>
-      `;
-    });
-    html += `</tr>`;
-    });
-    
-    html += `</tbody></table>`;
-    availabilityGrid.innerHTML = html;
-    
-    updateCommonSlots();
-  }
-  // Mettre à jour une disponibilité
-  function updateAvailability(player, slot, isAvailable) {
-    availabilities[player][slot] = isAvailable;
-    updateCommonSlots();
-  }
-  // Afficher les créneaux communs
-  function updateCommonSlots() {
-    const commonSlots = document.getElementById('commonSlots');
-    let html = '';
-    
-    timeSlots.forEach(slot => {
-    const availablePlayers = allPlayers.filter(player => availabilities[player][slot]);
-    
-    if (availablePlayers.length === allPlayers.length) {
-      html += `<div class="common-slot">✅ ${slot} - Tous disponibles !</div>`;
-    } else if (availablePlayers.length >= 4) {
-      html += `<div class="partial-slot">⚠️ ${slot} - ${availablePlayers.length}/${allPlayers.length} disponibles (${availablePlayers.join(', ')})</div>`;
-    }
-    });
-    
-    if (html === '') {
-    html = '<p style="color: #64748b;">Aucun créneau commun pour le moment</p>';
-    }
-    
-    commonSlots.innerHTML = html;
-  }
-  // Sauvegarder les disponibilités
-  function saveAvailabilities() {
-    alert('✅ Disponibilités sauvegardées !');
-  }
+
   // Modifier la fonction switchTab
     // Initialisation
     generatePlayerCheckboxes();

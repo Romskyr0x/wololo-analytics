@@ -1260,6 +1260,37 @@
     }
     // Générer toutes les données
     const gameData = generateAllCombinations();
+
+// Données de possession des jeux
+const gameOwnership = {
+  "Payday II/III": [],
+  "Sea of Thieves": [],
+  "Helldivers II": [],
+  "Void Crew": [],
+  "Rematch": [],
+  "Worms WMD": [],
+  "Pummel Party": [],
+  "Guilty As Sock!": [],
+  "Feather Party": [],
+  "Peak": ["Arthur","Benoît","Dorian","Romain"],
+  "Lethal Company": [],
+  "Emissary Zero": [],
+  "R.E.P.O.": [],
+  "The Headliners": [],
+  "Phasmophobia": [],
+  "Suns of the Forest": [],
+  "Plate Up!": [],
+  "7 Days to Die": [],
+  "Satisfactory": [],
+  "Fast Food Simulator": [],
+  "Schedule I": [],
+  "Terraria": [],
+  "Palworld": [],
+  "Valheim": [],
+  "Dead Island": [],
+  "Sunderfolk": []
+};
+
     
     // Générer les checkboxes
     function generatePlayerCheckboxes() {
@@ -1621,12 +1652,9 @@
       }
     }
     
-    // Appliquer une suggestion
+// Appliquer une suggestion
     function applySuggestion(players) {
-      // Décocher tout d'abord
       clearAllFilters();
-      
-      // Cocher les joueurs suggérés
       players.forEach(player => {
         const checkbox = document.querySelector(`input[value="${player}"]`);
         if (checkbox) {
@@ -1634,26 +1662,9 @@
           checkbox.closest('.player-checkbox').classList.add('checked');
         }
       });
-      
-      // Filtrer les résultats
       filterAndSortTable();
     }
-  
-  function switchTab(tabName) {
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    
-    // Trouver l'onglet cliqué et l'activer
-    event.currentTarget.classList.add('active');
-    document.getElementById(tabName + '-tab').classList.add('active');
-    
-    // Générer le contenu selon l'onglet
-    if (tabName === 'rankings') {
-    generateTopRankings();
-    initializeFilters();
-    } else if (tabName === 'ownership') {
-    generateOwnershipView();
-  }
+
     // Variables pour les filtres
     let currentFilters = {
       players: 'all',
@@ -1661,130 +1672,155 @@
       pc: 'all',
       price: 'all'
     };
+
+    // Fonction pour changer d'onglet
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      // Trouver et activer l'onglet cliqué
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach((tab, index) => {
+        if (tab.textContent.includes('Choose Your Players') && tabName === 'filter') tab.classList.add('active');
+        if (tab.textContent.includes('Choose Your Game') && tabName === 'rankings') tab.classList.add('active');
+        if (tab.textContent.includes('Whacha Got Bro') && tabName === 'ownership') tab.classList.add('active');
+      });
+      
+      document.getElementById(tabName + '-tab').classList.add('active');
+      
+      if (tabName === 'rankings') {
+        generateTopRankings();
+        initializeFilters();
+      } else if (tabName === 'ownership') {
+        generateOwnershipView();
+      }
+    }
+
     // Générer le top des combinaisons par jeu avec filtres
-   function generateTopRankings() {
-    const topRankingsContainer = document.getElementById('topRankings');
-    
-    const gameGroups = {};
-    gameData.forEach(game => {
-    if (!gameGroups[game.game]) {
-      gameGroups[game.game] = [];
-    }
-    gameGroups[game.game].push(game);
-    });
-    
-    const filteredGames = Object.keys(gameGroups).filter(gameName => {
-    const details = gameDetails[gameName];
-    if (!details) return false;
-    
-    if (currentFilters.pc === 'light' && details.pcPower > 2) return false;
-    if (currentFilters.pc === 'medium' && (details.pcPower < 3 || details.pcPower > 3)) return false;
-    if (currentFilters.pc === 'high' && details.pcPower < 4) return false;
-    
-    const minPrice = Math.min(details.steamPrice || Infinity, details.igPrice || Infinity);
-    if (currentFilters.price === 'cheap' && minPrice > 10) return false;
-    if (currentFilters.price === 'medium' && minPrice > 25) return false;
-    if (currentFilters.price === 'free' && minPrice !== Infinity) return false;
-    
-    const validCombinations = gameGroups[gameName].filter(combo => {
-      if (currentFilters.players !== 'all') {
-      if (currentFilters.players === '5+' && combo.players.length < 5) return false;
-      if (currentFilters.players !== '5+' && combo.players.length !== parseInt(currentFilters.players)) return false;
+    function generateTopRankings() {
+      const topRankingsContainer = document.getElementById('topRankings');
+      
+      const gameGroups = {};
+      gameData.forEach(game => {
+        if (!gameGroups[game.game]) {
+          gameGroups[game.game] = [];
+        }
+        gameGroups[game.game].push(game);
+      });
+      
+      const filteredGames = Object.keys(gameGroups).filter(gameName => {
+        const details = gameDetails[gameName];
+        if (!details) return false;
+        
+        if (currentFilters.pc === 'light' && details.pcPower > 2) return false;
+        if (currentFilters.pc === 'medium' && (details.pcPower < 3 || details.pcPower > 3)) return false;
+        if (currentFilters.pc === 'high' && details.pcPower < 4) return false;
+        
+        const minPrice = Math.min(details.steamPrice || Infinity, details.igPrice || Infinity);
+        if (currentFilters.price === 'cheap' && minPrice > 10) return false;
+        if (currentFilters.price === 'medium' && minPrice > 25) return false;
+        if (currentFilters.price === 'free' && minPrice !== Infinity) return false;
+        
+        const validCombinations = gameGroups[gameName].filter(combo => {
+          if (currentFilters.players !== 'all') {
+            if (currentFilters.players === '5+' && combo.players.length < 5) return false;
+            if (currentFilters.players !== '5+' && combo.players.length !== parseInt(currentFilters.players)) return false;
+          }
+          if (combo.score < currentFilters.score) return false;
+          return true;
+        });
+        
+        return validCombinations.length > 0;
+      });
+      
+      const filterResultsInfo = document.getElementById('filterResultsInfo');
+      const filteredGamesCount = document.getElementById('filteredGamesCount');
+      
+      const hasActiveFilters = Object.values(currentFilters).some((value, index) => {
+        const defaults = ['all', 0, 'all', 'all'];
+        return value !== defaults[index];
+      });
+      
+      if (hasActiveFilters) {
+        filteredGamesCount.textContent = filteredGames.length;
+        filterResultsInfo.style.display = 'block';
+      } else {
+        filterResultsInfo.style.display = 'none';
       }
-      if (combo.score < currentFilters.score) return false;
-      return true;
-    });
-    
-    return validCombinations.length > 0;
-    });
-    
-    const filterResultsInfo = document.getElementById('filterResultsInfo');
-    const filteredGamesCount = document.getElementById('filteredGamesCount');
-    
-    const hasActiveFilters = Object.values(currentFilters).some((value, index) => {
-    const defaults = ['all', 0, 'all', 'all'];
-    return value !== defaults[index];
-    });
-    
-    if (hasActiveFilters) {
-    filteredGamesCount.textContent = filteredGames.length;
-    filterResultsInfo.style.display = 'block';
-    } else {
-    filterResultsInfo.style.display = 'none';
-    }
-    
-    let html = '';
-    
-    filteredGames.sort().forEach(gameName => {
-    const combinations = gameGroups[gameName];
-    
-    const filteredCombinations = combinations.filter(combo => {
-      if (currentFilters.players !== 'all') {
-      if (currentFilters.players === '5+' && combo.players.length < 5) return false;
-      if (currentFilters.players !== '5+' && combo.players.length !== parseInt(currentFilters.players)) return false;
+      
+      let html = '';
+      
+      filteredGames.sort().forEach(gameName => {
+        const combinations = gameGroups[gameName];
+        
+        const filteredCombinations = combinations.filter(combo => {
+          if (currentFilters.players !== 'all') {
+            if (currentFilters.players === '5+' && combo.players.length < 5) return false;
+            if (currentFilters.players !== '5+' && combo.players.length !== parseInt(currentFilters.players)) return false;
+          }
+          if (combo.score < currentFilters.score) return false;
+          return true;
+        });
+        
+        const topCombinations = filteredCombinations.sort((a, b) => b.score - a.score).slice(0, 10);
+        if (topCombinations.length === 0) return;
+        
+        const details = gameDetails[gameName];
+        if (!details) return;
+        
+        html += `
+          <div class="game-section">
+            <div class="game-section-header">
+              <span style="font-size: 2em;">${details.icon}</span>
+              <div>
+                <h3 class="game-section-title">${gameName}</h3>
+                <div class="game-section-info">${topCombinations.length} combinaisons • Meilleur score: ${topCombinations[0].score}</div>
+              </div>
+            </div>
+            <div class="rankings-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>🏆 Rang</th>
+                    <th>👥 Combinaison</th>
+                    <th>⭐ Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${topCombinations.map((combo, index) => {
+                    let rankClass = '';
+                    if (index === 0) rankClass = 'top1';
+                    else if (index === 1) rankClass = 'top2';
+                    else if (index === 2) rankClass = 'top3';
+                    
+                    return `
+                      <tr>
+                        <td><div class="rank-number ${rankClass}">${index + 1}</div></td>
+                        <td class="player-combo">${combo.players.join(', ')}</td>
+                        <td class="score ${getScoreClass(combo.score)}">${combo.score}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      });
+      
+      if (html === '') {
+        html = `
+          <div style="text-align: center; padding: 60px; color: #64748b;">
+            <div style="font-size: 4em; margin-bottom: 20px;">🎯</div>
+            <h3>Aucun jeu ne correspond aux filtres</h3>
+            <p>Essayez d'ajuster vos critères de filtrage</p>
+          </div>
+        `;
       }
-      if (combo.score < currentFilters.score) return false;
-      return true;
-    });
-    
-    const topCombinations = filteredCombinations.sort((a, b) => b.score - a.score).slice(0, 10);
-    if (topCombinations.length === 0) return;
-    
-    const details = gameDetails[gameName];
-    if (!details) return;
-    
-    html += `
-      <div class="game-section">
-      <div class="game-section-header">
-        <span style="font-size: 2em;">${details.icon}</span>
-        <div>
-        <h3 class="game-section-title">${gameName}</h3>
-        <div class="game-section-info">${topCombinations.length} combinaisons • Meilleur score: ${topCombinations[0].score}</div>
-        </div>
-      </div>
-      <div class="rankings-table">
-        <table>
-        <thead>
-          <tr>
-          <th>🏆 Rang</th>
-          <th>👥 Combinaison</th>
-          <th>⭐ Score</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${topCombinations.map((combo, index) => {
-          let rankClass = '';
-          if (index === 0) rankClass = 'top1';
-          else if (index === 1) rankClass = 'top2';
-          else if (index === 2) rankClass = 'top3';
-          
-          return `
-            <tr>
-            <td><div class="rank-number ${rankClass}">${index + 1}</div></td>
-            <td class="player-combo">${combo.players.join(', ')}</td>
-            <td class="score ${getScoreClass(combo.score)}">${combo.score}</td>
-            </tr>
-          `;
-          }).join('')}
-        </tbody>
-        </table>
-      </div>
-      </div>
-    `;
-    });
-    
-    if (html === '') {
-    html = `
-      <div style="text-align: center; padding: 60px; color: #64748b;">
-      <div style="font-size: 4em; margin-bottom: 20px;">🎯</div>
-      <h3>Aucun jeu ne correspond aux filtres</h3>
-      <p>Essayez d'ajuster vos critères de filtrage</p>
-      </div>
-    `;
+      
+      topRankingsContainer.innerHTML = html;
     }
-    
-    topRankingsContainer.innerHTML = html;
-  }
+
     // Gestion des filtres
     function initializeFilters() {
       document.querySelectorAll('.filter-button').forEach(button => {
@@ -1792,32 +1828,27 @@
           const filterType = button.dataset.filter;
           const filterValue = button.dataset.value;
           
-          // Désactiver les autres boutons du même groupe
           document.querySelectorAll(`[data-filter="${filterType}"]`).forEach(btn => {
             btn.classList.remove('active');
           });
           
-          // Activer le bouton cliqué
           button.classList.add('active');
           
-          // Mettre à jour les filtres
           if (filterType === 'score') {
             currentFilters[filterType] = parseFloat(filterValue);
           } else {
             currentFilters[filterType] = filterValue;
           }
           
-          // Régénérer les rankings
           generateTopRankings();
         });
       });
     }
-  
+
     // Générer la vue de possession des jeux
     function generateOwnershipView(filter = 'all') {
       const ownershipGrid = document.getElementById('ownershipGrid');
       
-      // Filtrer les jeux selon le filtre actuel
       const filteredGames = allGames.filter(game => {
         const owners = gameOwnership[game];
         const ownerCount = owners.length;
@@ -1839,11 +1870,9 @@
         
         if (!details) return '';
         
-        // Calculer le prix minimum
         const minPrice = Math.min(details.steamPrice || Infinity, details.igPrice || Infinity);
         const priceDisplay = minPrice === Infinity ? 'N/A' : `${minPrice.toFixed(2)}€`;
         
-        // Générer les étoiles PC
         const pcStars = Array.from({length: 5}, (_, i) => 
           i < details.pcPower ? '★' : '☆'
         ).join('');
@@ -1903,24 +1932,7 @@
         ownershipGrid.innerHTML = html;
       }
     }
-    // Initialiser les filtres de possession
-    function initializeOwnershipFilters() {
-      document.querySelectorAll('[data-ownership-filter]').forEach(button => {
-        button.addEventListener('click', () => {
-          // Désactiver tous les boutons
-          document.querySelectorAll('[data-ownership-filter]').forEach(btn => {
-            btn.classList.remove('active');
-          });
-          
-          // Activer le bouton cliqué
-          button.classList.add('active');
-          
-          // Régénérer la vue
-          const filter = button.dataset.ownershipFilter;
-          generateOwnershipView(filter);
-        });
-      });
-    }
+
     // Fonction pour tout décocher
     function clearAllFilters() {
       document.querySelectorAll('#playersGrid input').forEach(checkbox => {
@@ -1929,37 +1941,7 @@
       });
       filterAndSortTable();
     }
-  
-  const gameOwnership = {
-    "Payday II/III": [],
-    "Sea of Thieves": [],
-    "Helldivers II": [],
-    "Void Crew": [],
-    "Rematch": [],
-    "Worms WMD": [],
-    "Pummel Party": [],
-    "Guilty As Sock!": [],
-    "Feather Party": [],
-    "Peak": ["Arthur","Benoît","Dorian","Romain"],
-    "Lethal Company": [],
-    "Emissary Zero": [],
-    "R.E.P.O.": [],
-    "The Headliners": [],
-    "Phasmophobia": [],
-    "Suns of the Forest": [],
-    "Plate Up!": [],
-    "7 Days to Die": [],
-    "Satisfactory": [],
-    "Fast Food Simulator": [],
-    "Schedule I": [],
-    "Terraria": [],
-    "Palworld": [],
-    "Valheim": [],
-    "Dead Island": [],
-    "Sunderfolk": []
-  };
 
-  // Modifier la fonction switchTab
     // Initialisation
     generatePlayerCheckboxes();
     filterAndSortTable();

@@ -1252,23 +1252,23 @@
 	  return Math.round((scores.reduce((sum, score) => sum + score, 0) / scores.length) * 100) / 100;
 	}
     // Générer toutes les données possibles
-    function generateAllCombinations() {
-      const combinations = generateCombinations(allPlayers);
-      const gameData = [];
-      combinations.forEach(playerCombo => {
-        allGames.forEach(game => {
-          const averageScore = calculateAverage(playerCombo, game);
-          if (averageScore !== null) {
-            gameData.push({
-              players: [...playerCombo].sort(),
-              game: game,
-              score: averageScore
-            });
-          }
-        });
-      });
-      return gameData;
-    }
+	function generateAllCombinations() {
+	  const combinations = generateCombinations(allPlayers);
+	  const gameData = [];
+	  combinations.forEach(playerCombo => {
+		allGames.forEach(game => {
+		  const averageScore = calculateAverage(playerCombo, game);
+		  // ENLEVER cette ligne : if (averageScore !== null) {
+		  // La remplacer par : Toujours ajouter, même si null
+		  gameData.push({
+			players: [...playerCombo].sort(),
+			game: game,
+			score: averageScore  // Peut être null maintenant
+		  });
+		});
+	  });
+	  return gameData;
+	}
     // Générer toutes les données
     const gameData = generateAllCombinations();
 
@@ -1375,9 +1375,16 @@ const gameOwnership = {
 		return ownersB - ownersA;
 	  }
 	  
+	  // Mettre les scores null (?) à la fin
+	  if (a.score === null && b.score !== null) return 1;
+	  if (a.score !== null && b.score === null) return -1;
+	  if (a.score === null && b.score === null) return 0;
+	  
 	  // En cas d'égalité de possession, trier par score
 	  return b.score - a.score;
 	});
+	
+	
 		  
       // Générer des suggestions intelligentes
       generateSuggestions(selectedPlayers);
@@ -1461,7 +1468,7 @@ const gameOwnership = {
 				  ${ownershipBadge}
 				</div>
 			  </td>
-			  <td class="score ${getScoreClass(game.score)}">${game.score}</td>
+			  <td class="score ${game.score === null ? 'score-average' : getScoreClass(game.score)}">${game.score === null ? '?' : game.score}</td>
 			  <td>
 				<div class="pc-requirement">
 				  ${pcStars}

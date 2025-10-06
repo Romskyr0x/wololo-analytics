@@ -1689,12 +1689,13 @@ const gameOwnership = {
       
 	// Afficher les suggestions (sans doublons)
 	if (suggestions.length > 0) {
-	  // Supprimer les doublons basés sur la combinaison de joueurs et le jeu
+	  // Supprimer les doublons basés sur la combinaison de joueurs ET le jeu
 	  const uniqueSuggestions = suggestions.filter((suggestion, index, self) =>
-		index === self.findIndex((s) => 
-		  JSON.stringify(s.combo.sort()) === JSON.stringify(suggestion.combo.sort()) &&
-		  suggestion.text === s.text
-		)
+		index === self.findIndex((s) => {
+		  const sameCombo = JSON.stringify(s.combo.sort()) === JSON.stringify(suggestion.combo.sort());
+		  const sameGame = s.text.includes(suggestion.text.split(' sur ')[1]) || s.text === suggestion.text;
+		  return sameCombo && sameGame;
+		})
 	  );
 	  
 	  suggestionsContent.innerHTML = uniqueSuggestions.slice(0, 3).map(suggestion => `

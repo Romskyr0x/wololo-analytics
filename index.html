@@ -1709,19 +1709,20 @@ const gameOwnership = {
 	} else {
 	  suggestionsSection.classList.remove('show');
 	}
+		}
     
-// Appliquer une suggestion
-    function applySuggestion(players) {
-      clearAllFilters();
-      players.forEach(player => {
-        const checkbox = document.querySelector(`input[value="${player}"]`);
-        if (checkbox) {
-          checkbox.checked = true;
-          checkbox.closest('.player-checkbox').classList.add('checked');
-        }
-      });
-      filterAndSortTable();
-    }
+	// Appliquer une suggestion
+		function applySuggestion(players) {
+		  clearAllFilters();
+		  players.forEach(player => {
+			const checkbox = document.querySelector(`input[value="${player}"]`);
+			if (checkbox) {
+			  checkbox.checked = true;
+			  checkbox.closest('.player-checkbox').classList.add('checked');
+			}
+		  });
+		  filterAndSortTable();
+		}
 
     // Variables pour les filtres
     let currentFilters = {

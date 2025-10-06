@@ -989,9 +989,9 @@
       </div>
       
 <h1>
-  <img src="https://ih1.redbubble.net/image.5300302362.3708/bg,f8f8f8-flat,750x,075,f-pad,750x1000,f8f8f8.jpg" 
+  <img src="wololo-priest.png" 
        alt="Wololo Priest" 
-       style="height: 2.5em; vertical-align: middle; margin-right: 15px; mix-blend-mode: multiply; filter: brightness(1.1) contrast(1.2);">
+       style="height: 2.5em; vertical-align: middle; margin-right: 15px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
   Wololo Analytics
 </h1>
   <p>L'algo qui met fin aux débats de 23h</p>
@@ -1622,8 +1622,36 @@ const gameOwnership = {
           }
         });
       }
-      
-      // Cas 3: Détecter des duos avec scores identiques élevés (comme ton exemple)
+ 
+	// Cas 3: Si trois joueurs sélectionnés, chercher qui ajouter pour un quatuor
+	if (selectedPlayers.length === 3) {
+	  const currentTrio = selectedPlayers.sort();
+	  const trioGames = gameData.filter(game => 
+		game.players.length === 3 && 
+		JSON.stringify(game.players.sort()) === JSON.stringify(currentTrio)
+	  );
+	  
+	  trioGames.forEach(trioGame => {
+		if (trioGame.score >= 3.5) {
+		  const possibleQuartets = gameData.filter(game =>
+			game.players.length === 4 &&
+			currentTrio.every(player => game.players.includes(player))
+		  ).sort((a, b) => b.score - a.score);
+		  
+		  possibleQuartets.slice(0, 2).forEach(quartet => {
+			const newPlayer = quartet.players.find(p => !currentTrio.includes(p));
+			suggestions.push({
+			  type: 'quartet',
+			  text: `Votre trio (${trioGame.score}) + <span class="highlight-combo">${newPlayer}</span> = ${quartet.score} sur ${quartet.game}`,
+			  combo: quartet.players,
+			  reason: 'extension_trio'
+			});
+		  });
+		}
+	  });
+	}
+ 
+      // Cas 4: Détecter des duos avec scores identiques élevés (comme ton exemple)
       if (selectedPlayers.length === 0) {
         const highScoreDuos = gameData
           .filter(game => game.players.length === 2 && game.score >= 3.7)
@@ -1659,21 +1687,28 @@ const gameOwnership = {
         });
       }
       
-      // Afficher les suggestions
-      if (suggestions.length > 0) {
-        suggestionsContent.innerHTML = suggestions.slice(0, 3).map(suggestion => `
-          <div class="suggestion-item">
-            <div class="suggestion-text">${suggestion.text}</div>
-            <button class="suggestion-button" onclick="applySuggestion(['${suggestion.combo.join("', '")}'])">
-              Tester
-            </button>
-          </div>
-        `).join('');
-        suggestionsSection.classList.add('show');
-      } else {
-        suggestionsSection.classList.remove('show');
-      }
-    }
+	// Afficher les suggestions (sans doublons)
+	if (suggestions.length > 0) {
+	  // Supprimer les doublons basés sur la combinaison de joueurs et le jeu
+	  const uniqueSuggestions = suggestions.filter((suggestion, index, self) =>
+		index === self.findIndex((s) => 
+		  JSON.stringify(s.combo.sort()) === JSON.stringify(suggestion.combo.sort()) &&
+		  suggestion.text === s.text
+		)
+	  );
+	  
+	  suggestionsContent.innerHTML = uniqueSuggestions.slice(0, 3).map(suggestion => `
+		<div class="suggestion-item">
+		  <div class="suggestion-text">${suggestion.text}</div>
+		  <button class="suggestion-button" onclick="applySuggestion(['${suggestion.combo.join("', '")}'])">
+			Tester
+		  </button>
+		</div>
+	  `).join('');
+	  suggestionsSection.classList.add('show');
+	} else {
+	  suggestionsSection.classList.remove('show');
+	}
     
 // Appliquer une suggestion
     function applySuggestion(players) {
